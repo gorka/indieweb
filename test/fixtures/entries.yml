@@ -1,7 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  content: MyText
+without_categories:
+  content: Entry without categories
 
-two:
-  content: MyText
+with_categories:
+  content: Entry with categories

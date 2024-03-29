@@ -24,6 +24,16 @@ class MicropubController < ApplicationController
         microformat_object.content = params[:content]
       end
 
+      if params[:category]
+        microformat_object.categorizations_attributes = params[:category].map { |category|
+          {
+            category_attributes: {
+              name: category
+            }
+          }
+        }
+      end
+
       if microformat_object.save
         response.headers["Location"] = entry_url(microformat_object)
         head :created

@@ -2,4 +2,12 @@
   <div class="e-content">
     <p><%= @entry.content %></p>
   </div>
+
+  <% if @entry.categories.any? %>
+    <div>
+      <% @entry.categories.each do |category| %>
+        <span class="p-category"><%= category.name %></span>
+      <% end %>
+    </div>
+  <% end %>
 </article>

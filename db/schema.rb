@@ -10,9 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_15_212140) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_29_214525) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_categories_on_name", unique: true
+  end
+
+  create_table "categorizations", force: :cascade do |t|
+    t.bigint "category_id", null: false
+    t.string "categorizable_type", null: false
+    t.bigint "categorizable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["categorizable_type", "categorizable_id"], name: "index_categorizations_on_categorizable"
+    t.index ["category_id", "categorizable_type", "categorizable_id"], name: "unique_category_categorizable", unique: true
+    t.index ["category_id"], name: "index_categorizations_on_category_id"
+  end
 
   create_table "entries", force: :cascade do |t|
     t.text "content"
@@ -20,4 +38,5 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_15_212140) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "categorizations", "categories"
 end
