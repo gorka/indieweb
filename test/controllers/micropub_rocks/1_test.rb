@@ -49,4 +49,23 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
     assert_select ".e-content", text: "Micropub test of creating a photo referenced by URL"
     assert_select 'img[src$="sunset.jpg"]'
   end
+
+  test "107: Create an h-entry post with one category (form-encoded)" do
+    data = {
+      h: "entry",
+      content: "Micropub test of creating an h-entry with one category. This post should have one category, test1",
+      category: "test1"
+    }
+
+    post micropub_path, params: data
+
+    assert_response :created
+
+    get entry_path(Entry.last)
+
+    assert_select ".h-entry", count: 1
+    assert_select ".e-content", text: "Micropub test of creating an h-entry with one category. This post should have one category, test1"
+    assert_select ".p-category", count: 1
+    assert_select ".p-category", text: "test1", count: 1
+  end
 end

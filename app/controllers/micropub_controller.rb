@@ -27,13 +27,17 @@ class MicropubController < ApplicationController
       end
 
       if params[:category]
-        microformat_object.categorizations_attributes = params[:category].map { |category|
+        categories = [params[:category]].flatten
+
+        categorizations_attributes = categories.map { |category|
           {
             category_attributes: {
               name: category
             }
           }
         }
+
+        microformat_object.categorizations_attributes = categorizations_attributes
       end
 
       if params[:photo]
