@@ -1,3 +1,5 @@
+require "open-uri"
+
 class MicropubController < ApplicationController
   skip_forgery_protection
 
@@ -32,6 +34,17 @@ class MicropubController < ApplicationController
             }
           }
         }
+      end
+
+      if params[:photo]
+        begin
+          photo_uri = URI.parse(params[:photo])
+          microformat_object.photos.attach(io: photo_uri.open, filename: File.basename(photo_uri.path))
+        rescue => error
+          puts "-" * 100
+          p error
+          puts "-" * 100
+        end
       end
 
       if microformat_object.save

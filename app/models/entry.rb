@@ -2,6 +2,8 @@ class Entry < ApplicationRecord
   has_many :categorizations, as: :categorizable, dependent: :destroy
   has_many :categories, through: :categorizations
 
+  has_many_attached :photos
+
   accepts_nested_attributes_for :categorizations, reject_if: :empty_or_assigned_category
 
   private

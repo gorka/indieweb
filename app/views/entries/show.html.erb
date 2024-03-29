@@ -1,6 +1,12 @@
 <article class="h-entry">
   <div class="e-content">
-    <p><%= @entry.content %></p>
+    <% @entry.photos.each do |photo| %>
+      <%= image_tag photo, class: "u-photo" %>
+    <% end %>
+
+    <div>
+      <%= @entry.content %>
+    </div>
   </div>
 
   <% if @entry.categories.any? %>
