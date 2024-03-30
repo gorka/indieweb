@@ -4,8 +4,9 @@ class MicropubController < ApplicationController
   skip_forgery_protection
 
   CONTENT_TYPES = {
-    FORM_ENCODED: "application/x-www-form-urlencoded",
-    JSON: "application/json"
+    FORM_ENCODED: /application\/x-www-form-urlencoded/,
+    JSON: /application\/json/,
+    MULTIPART: /multipart\/form-data/
   }
 
   MICROFORMAT_OBJECT_TYPES = {
@@ -17,7 +18,7 @@ class MicropubController < ApplicationController
   class InvalidMicroformat < StandardError; end
 
   def create
-    if request.headers["Content-type"] == CONTENT_TYPES[:FORM_ENCODED]
+    if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED] || request.content_type =~ CONTENT_TYPES[:MULTIPART]
       microformat = MICROFORMAT_OBJECT_TYPES[params[:h].to_sym]
 
       raise InvalidMicroformat if !microformat
@@ -43,23 +44,37 @@ class MicropubController < ApplicationController
       end
 
       if params[:photo]
-        begin
-          photo_uri = URI.parse(params[:photo])
-        rescue => error
-          puts "-" * 100
-          p error
-          puts "-" * 100
-        end
+        photos = [params[:photo]].flatten
 
-        microformat_photos_attributes = [
-          {
+        microformat_photos_attributes = photos.reduce([]) do |acc, curr|
+          if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED]
+            begin
+              photo_uri = URI.parse(curr)
+            rescue => error
+              puts "-" * 100
+              p error
+              puts "-" * 100
+            end
+  
+            photo_data = photo_uri.open
+            photo_name = File.basename(photo_uri.path)
+          end
+  
+          if request.content_type =~ CONTENT_TYPES[:MULTIPART]
+            photo_data = curr
+            photo_name = curr.original_filename
+          end
+
+          acc << {
             photo_with_alt_attributes: {
               alt: "",
-              photo_data: photo_uri.open,
-              photo_name: File.basename(photo_uri.path)
+              photo_data:,
+              photo_name:
             }
           }
-        ]
+
+          acc
+        end
 
         microformat_object.microformat_photos_attributes = microformat_photos_attributes
       end
@@ -72,7 +87,7 @@ class MicropubController < ApplicationController
       end
     end
 
-    if request.headers["Content-type"] == CONTENT_TYPES[:JSON]
+    if request.content_type =~ CONTENT_TYPES[:JSON]
       microformat_param = params[:type]&.first&.split("-")&.pop
       microformat = MICROFORMAT_OBJECT_TYPES[microformat_param.to_sym]
 
