@@ -98,6 +98,19 @@ class MicropubController < ApplicationController
         microformat_object.categorizations_attributes = categorizations_attributes
       end
 
+      if properties[:photo]&.any?
+        properties[:photo].each do |photo|
+          begin
+            photo_uri = URI.parse(photo)
+            microformat_object.photos.attach(io: photo_uri.open, filename: File.basename(photo_uri.path))
+          rescue => error
+            puts "-" * 100
+            p error
+            puts "-" * 100
+          end
+        end
+      end
+
       if microformat_object.save
         response.headers["Location"] = entry_url(microformat_object)
         head :created
