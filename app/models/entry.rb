@@ -2,9 +2,11 @@ class Entry < ApplicationRecord
   has_many :categorizations, as: :categorizable, dependent: :destroy
   has_many :categories, through: :categorizations
 
-  has_many_attached :photos
+  has_many :microformat_photos, as: :photoable, dependent: :destroy
+  has_many :photos_with_alt, through: :microformat_photos, source: :photo_with_alt
 
   accepts_nested_attributes_for :categorizations, reject_if: :empty_or_assigned_category
+  accepts_nested_attributes_for :microformat_photos
 
   private
 

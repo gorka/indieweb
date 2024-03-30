@@ -1,0 +1,4 @@
+sunset_photo_attachment:
+  name: photo
+  record: sunset (PhotoWithAlt)
+  blob: sunset_photo_blob

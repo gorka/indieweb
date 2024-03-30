@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_29_224618) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_30_011137) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -66,7 +66,24 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_29_224618) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "microformat_photos", force: :cascade do |t|
+    t.bigint "photo_with_alt_id", null: false
+    t.string "photoable_type", null: false
+    t.bigint "photoable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["photo_with_alt_id"], name: "index_microformat_photos_on_photo_with_alt_id"
+    t.index ["photoable_type", "photoable_id"], name: "index_microformat_photos_on_photoable"
+  end
+
+  create_table "photos_with_alt", force: :cascade do |t|
+    t.string "alt"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "categorizations", "categories"
+  add_foreign_key "microformat_photos", "photos_with_alt", column: "photo_with_alt_id"
 end
