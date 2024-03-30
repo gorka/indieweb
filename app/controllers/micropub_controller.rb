@@ -44,33 +44,37 @@ class MicropubController < ApplicationController
       end
 
       if params[:photo]
-        if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED]
-          begin
-            photo_uri = URI.parse(params[:photo])
-          rescue => error
-            puts "-" * 100
-            p error
-            puts "-" * 100
+        photos = [params[:photo]].flatten
+
+        microformat_photos_attributes = photos.reduce([]) do |acc, curr|
+          if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED]
+            begin
+              photo_uri = URI.parse(curr)
+            rescue => error
+              puts "-" * 100
+              p error
+              puts "-" * 100
+            end
+  
+            photo_data = photo_uri.open
+            photo_name = File.basename(photo_uri.path)
+          end
+  
+          if request.content_type =~ CONTENT_TYPES[:MULTIPART]
+            photo_data = curr
+            photo_name = curr.original_filename
           end
 
-          photo_data = photo_uri.open
-          photo_name = File.basename(photo_uri.path)
-        end
-
-        if request.content_type =~ CONTENT_TYPES[:MULTIPART]
-          photo_data = params[:photo]
-          photo_name = params[:photo].original_filename
-        end
-
-        microformat_photos_attributes = [
-          {
+          acc << {
             photo_with_alt_attributes: {
               alt: "",
               photo_data:,
               photo_name:
             }
           }
-        ]
+
+          acc
+        end
 
         microformat_object.microformat_photos_attributes = microformat_photos_attributes
       end
