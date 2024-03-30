@@ -5,3 +5,6 @@ without_categories:
 
 with_categories:
   content: Entry with categories
+
+with_image_with_alt:
+  content: Entry with image with alt

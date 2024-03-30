@@ -1,0 +1,1 @@
+sunset_photo_blob: <%= ActiveStorage::FixtureSet.blob filename: "sunset.jpg" %>

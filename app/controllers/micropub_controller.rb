@@ -45,12 +45,23 @@ class MicropubController < ApplicationController
       if params[:photo]
         begin
           photo_uri = URI.parse(params[:photo])
-          microformat_object.photos.attach(io: photo_uri.open, filename: File.basename(photo_uri.path))
         rescue => error
           puts "-" * 100
           p error
           puts "-" * 100
         end
+
+        microformat_photos_attributes = [
+          {
+            photo_with_alt_attributes: {
+              alt: "",
+              photo_data: photo_uri.open,
+              photo_name: File.basename(photo_uri.path)
+            }
+          }
+        ]
+
+        microformat_object.microformat_photos_attributes = microformat_photos_attributes
       end
 
       if microformat_object.save
@@ -99,16 +110,32 @@ class MicropubController < ApplicationController
       end
 
       if properties[:photo]&.any?
-        properties[:photo].each do |photo|
+        microformat_photos_attributes = properties[:photo].reduce([]) do |acc, curr|
           begin
-            photo_uri = URI.parse(photo)
-            microformat_object.photos.attach(io: photo_uri.open, filename: File.basename(photo_uri.path))
+            photo_uri, alt = case curr
+            when String
+              [URI.parse(curr), ""]
+            when ActionController::Parameters
+              [URI.parse(curr["value"]), curr[:alt]]
+            end
           rescue => error
             puts "-" * 100
             p error
             puts "-" * 100
           end
+
+          acc << {
+            photo_with_alt_attributes: {
+              alt: alt,
+              photo_data: photo_uri.open,
+              photo_name: File.basename(photo_uri.path)
+            }
+          }
+
+          acc
         end
+
+        microformat_object.microformat_photos_attributes = microformat_photos_attributes
       end
 
       if microformat_object.save

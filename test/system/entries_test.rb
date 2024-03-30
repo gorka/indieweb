@@ -22,4 +22,14 @@ class EntriesTest < ApplicationSystemTestCase
     assert_selector ".p-category", text: "Category1", count: 1
     assert_selector ".p-category", text: "Category2", count: 1
   end
+
+  test "should get an entry with microformats with an image with alt" do
+    entry = entries(:with_image_with_alt)
+
+    visit entry_path(entry)
+
+    assert_selector ".h-entry", count: 1
+    assert_selector ".e-content", text: "Entry with image with alt"
+    assert_selector 'img[alt$="Photo of a sunset"]'
+  end
 end

@@ -1,0 +1,6 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+entry_with_image_with_alt_sunset:
+  photo_with_alt: sunset
+  photoable: with_image_with_alt
+  photoable_type: Entry

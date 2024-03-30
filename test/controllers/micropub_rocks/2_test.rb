@@ -83,4 +83,29 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
     assert_select ".e-content", text: "Micropub test of creating a photo referenced by URL. This post should include a photo of a sunset."
     assert_select 'img[src$="sunset.jpg"]'
   end
+
+  test "205: Create an h-entry post with a photo with alt text (JSON)" do
+    data = {
+      "type": ["h-entry"],
+      "properties": {
+        "content": ["Micropub test of creating a photo referenced by URL with alt text. This post should include a photo of a sunset."],
+        "photo": [
+          {
+            "value": "https://micropub.rocks/media/sunset.jpg",
+            "alt": "Photo of a sunset"
+          }
+        ]
+      }
+    }
+
+    post micropub_path, params: data, as: :json
+
+    assert_response :created
+
+    get entry_path(Entry.last)
+
+    assert_select ".h-entry", count: 1
+    assert_select ".e-content", text: "Micropub test of creating a photo referenced by URL with alt text. This post should include a photo of a sunset."
+    assert_select 'img[alt$="Photo of a sunset"]'
+  end
 end
