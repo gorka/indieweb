@@ -72,7 +72,18 @@ class MicropubController < ApplicationController
       microformat_object = microformat[:class].new
 
       if properties[:content].any?
-        microformat_object.content = properties[:content].first
+        content = properties[:content].first
+
+        kontent = case content
+        when String
+          content
+        when ActionController::Parameters
+          content[:html]
+        else
+          ""
+        end
+
+        microformat_object.content = kontent
       end
 
       if properties[:category]&.any?
