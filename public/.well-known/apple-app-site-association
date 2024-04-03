@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["75DV5SL836.com.gorkula.indieblog"],
+        "components": [
+          {
+            "/": "/auth/callback",
+            "?": { "code": "?*", "state": "?*" },
+            "comment": "Matches any URL whose path is /auth/callback and has code and state params."
+          }
+        ]
+      }
+    ]
+  }
+}
