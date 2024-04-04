@@ -11,6 +11,21 @@
   </head>
 
   <body>
+    <div>
+      <% if user_signed_in? %>
+        <%= current_user.name %>
+        <%= button_to "Sign out", sign_out_path, method: :delete %>
+      <% else %>
+        <% if Rails.env.development? %>
+          <%= button_to "Sign in with Developer", "/auth/developer", data: { turbo: false } %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if alert %>
+      <div><%= alert %></div>
+    <% end %>
+
     <%= yield %>
   </body>
 </html>

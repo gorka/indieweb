@@ -13,3 +13,18 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+module OmniAuthHelper
+  def omniauth_setup_for_user(provider, uid, user)
+    OmniAuth.config.test_mode = true
+
+    OmniAuth.config.add_mock(
+      provider,
+      uid:,
+      info: {
+        name: user.name,
+        email: user.email
+      }
+    )
+  end
+end
