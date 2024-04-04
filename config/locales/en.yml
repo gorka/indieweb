@@ -28,4 +28,5 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  omniauth_provider:
+    missing_provider_data: "Something went wrong."

@@ -14,7 +14,9 @@ class Users::SessionsController < ApplicationController
     if omniauth_provider.persisted?
       session[:user_id] = omniauth_provider.user.id
     else
-      flash[:alert] = omniauth_provider.errors.full_messages
+      logger.error omniauth_provider.errors.full_messages
+
+      flash[:alert] = t("omniauth_provider.missing_provider_data")
     end
 
     redirect_to redirect_after_sign_in_path
@@ -29,16 +31,16 @@ class Users::SessionsController < ApplicationController
   private
 
     def omniauth_data
-      request.env["omniauth.auth"]
+      request.env["omniauth.auth"] || {}
     end
 
     def omniauth_params
       {
-        provider: omniauth_data[:provider],
-        uid: omniauth_data[:uid],
+        provider: omniauth_data.dig(:provider),
+        uid: omniauth_data.dig(:uid),
         info: {
-          name: omniauth_data[:info][:name],
-          email: omniauth_data[:info][:email],
+          name: omniauth_data.dig(:info, :name),
+          email: omniauth_data.dig(:info, :email)
         }
       }
     end
