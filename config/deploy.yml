@@ -1,0 +1,41 @@
+service: indieweb
+image: gorka/indieweb
+
+servers:
+  web:
+    hosts:
+      - 5.161.223.202
+    labels:
+      traefik.http.routers.indieweb-web.entrypoints: websecure
+      traefik.http.routers.indieweb-web.rule: Host(`*.indieblog.xyz`) || Host(`indieblog.xyz`)
+      traefik.http.routers.indieweb-web.tls.certresolver: letsencrypt
+
+registry:
+  server: ghcr.io
+  username: gorka
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: true
+    DB_HOST: 5.161.223.202
+  secret:
+    - RAILS_MASTER_KEY
+    - POSTGRES_USER
+    - POSTGRES_DB
+    - POSTGRES_PASSWORD
+
+accessories:
+  db:
+    image: postgres:15
+    host: 5.161.223.202
+    port: 5432
+    env:
+      secret:
+        - POSTGRES_USER
+        - POSTGRES_DB
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
