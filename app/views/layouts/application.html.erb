@@ -19,6 +19,7 @@
         <% if Rails.env.development? %>
           <%= button_to "Sign in with Developer", "/auth/developer", data: { turbo: false } %>
         <% end %>
+        <%= button_to "Sign in with CDS", "/auth/cds", data: { turbo: false } %>
       <% end %>
     </div>
 

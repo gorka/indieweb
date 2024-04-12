@@ -65,5 +65,7 @@ end
 
 gem "omniauth", "~> 2.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0"
+gem "omniauth-oauth2", "~> 1.8"
 
 gem "faraday", "~> 2.9"
+
