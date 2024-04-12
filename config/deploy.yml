@@ -7,7 +7,7 @@ servers:
       - 5.161.223.202
     labels:
       traefik.http.routers.indieweb-web.entrypoints: websecure
-      traefik.http.routers.indieweb-web.rule: Host(`indieblog.xyz`)
+      traefik.http.routers.indieweb-web.rule: Host(`*.indieblog.xyz`) || Host(`indieblog.xyz`)
       traefik.http.routers.indieweb-web.tls.certresolver: letsencrypt
 
 registry:
