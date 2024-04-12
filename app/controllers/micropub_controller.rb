@@ -3,8 +3,8 @@ require "open-uri"
 class MicropubController < ApplicationController
   skip_forgery_protection
 
-  before_action :authenticate, only: %i[ create ]
   before_action :set_blog, only: %i[ create ]
+  before_action :authenticate, only: %i[ create ]
 
   CONTENT_TYPES = {
     FORM_ENCODED: /application\/x-www-form-urlencoded/,
@@ -303,10 +303,7 @@ class MicropubController < ApplicationController
     end
 
     def verify_token(token)
-      # todo: use blog's token_endpoint
-      token_endpoint = "https://tokens.indieauth.com/token"
-
-      response = Faraday.get(token_endpoint, {}, {
+      response = Faraday.get(@blog.token_endpoint, {}, {
         "Accept": "application/json",
         "Authorization": "Bearer #{token}"
       })
@@ -314,10 +311,22 @@ class MicropubController < ApplicationController
       # puts "-" * 100
       # p JSON.parse(response.body)
       # puts "-" * 100
+      data = JSON.parse(response.body).with_indifferent_access
+      subdomain = URI.parse(data[:me])&.host&.split(".")&.first
+
+      # verify the token was generated for the correct domain:
+      render json: {
+        "error": "unauthorized",
+        "error_description": "The provided token is not valid for this domain."
+      }, status: :unauthorized and return if data[:me] != root_url(subdomain: subdomain)
+
+      # verify the token was issued using the right token_endpoint:
+      render json: {
+        "error": "unauthorized",
+        "error_description": "The token was generated with the wrong endpoint."
+      }, status: :unauthorized and return if data[:issued_by] != @blog.token_endpoint
 
       # todo:
-      # - verify that me is the same blog domain
-      # - verify that issued_by is the same blog token_endpoint
       # - verify scope permission
       # - store? client_id for reference
 
