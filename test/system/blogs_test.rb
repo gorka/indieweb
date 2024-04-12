@@ -1,0 +1,49 @@
+require "application_system_test_case"
+
+class BlogsTest < ApplicationSystemTestCase
+  setup do
+    @blog = blogs(:one)
+  end
+
+  test "visiting the index" do
+    visit blogs_url
+    assert_selector "h1", text: "Blogs"
+  end
+
+  test "should create blog" do
+    visit blogs_url
+    click_on "New blog"
+
+    fill_in "Authorization endpoint", with: @blog.authorization_endpoint
+    fill_in "Subdomain", with: @blog.subdomain
+    fill_in "Title", with: @blog.title
+    fill_in "Token endpoint", with: @blog.token_endpoint
+    fill_in "User", with: @blog.user_id
+    click_on "Create Blog"
+
+    assert_text "Blog was successfully created"
+    click_on "Back"
+  end
+
+  test "should update Blog" do
+    visit blog_url(@blog)
+    click_on "Edit this blog", match: :first
+
+    fill_in "Authorization endpoint", with: @blog.authorization_endpoint
+    fill_in "Subdomain", with: @blog.subdomain
+    fill_in "Title", with: @blog.title
+    fill_in "Token endpoint", with: @blog.token_endpoint
+    fill_in "User", with: @blog.user_id
+    click_on "Update Blog"
+
+    assert_text "Blog was successfully updated"
+    click_on "Back"
+  end
+
+  test "should destroy Blog" do
+    visit blog_url(@blog)
+    click_on "Destroy this blog", match: :first
+
+    assert_text "Blog was successfully destroyed"
+  end
+end
