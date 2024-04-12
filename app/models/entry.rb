@@ -1,4 +1,6 @@
 class Entry < ApplicationRecord
+  belongs_to :blog
+
   has_many :categorizations, as: :categorizable, dependent: :destroy
   has_many :categories, through: :categorizations
 

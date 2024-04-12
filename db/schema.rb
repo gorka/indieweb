@@ -42,6 +42,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_15_151006) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "blogs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.string "subdomain", null: false
+    t.string "authorization_endpoint"
+    t.string "token_endpoint"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subdomain"], name: "index_blogs_on_subdomain", unique: true
+    t.index ["user_id"], name: "index_blogs_on_user_id"
+  end
+
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -65,6 +77,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_15_151006) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.bigint "blog_id", null: false
+    t.index ["blog_id"], name: "index_entries_on_blog_id"
   end
 
   create_table "microformat_photos", force: :cascade do |t|
@@ -101,7 +115,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_15_151006) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "blogs", "users"
   add_foreign_key "categorizations", "categories"
+  add_foreign_key "entries", "blogs"
   add_foreign_key "microformat_photos", "photos_with_alt", column: "photo_with_alt_id"
   add_foreign_key "omniauth_providers", "users"
 end

@@ -4,6 +4,7 @@ class MicropubController < ApplicationController
   skip_forgery_protection
 
   before_action :authenticate, only: %i[ create ]
+  before_action :set_blog, only: %i[ create ]
 
   CONTENT_TYPES = {
     FORM_ENCODED: /application\/x-www-form-urlencoded/,
@@ -83,6 +84,7 @@ class MicropubController < ApplicationController
       raise InvalidMicroformat if !microformat
 
       microformat_object = microformat[:class].new
+      microformat_object.blog = @blog
 
       if params[:content]
         microformat_object.content = params[:content]
@@ -142,6 +144,9 @@ class MicropubController < ApplicationController
         response.headers["Location"] = entry_url(microformat_object)
         head :created
       else
+        puts "-" * 100
+        p microformat_object.errors.full_messages
+        puts "-" * 100
         head :unprocessable_entity
       end
     end
@@ -194,6 +199,7 @@ class MicropubController < ApplicationController
       properties = params[:properties]
 
       microformat_object = microformat[:class].new
+      microformat_object.blog = @blog
 
       if properties[:content].any?
         content = properties[:content].first
@@ -255,6 +261,9 @@ class MicropubController < ApplicationController
         response.headers["Location"] = entry_url(microformat_object)
         head :created
       else
+        puts "-" * 100
+        p microformat_object.errors.full_messages
+        puts "-" * 100
         head :unprocessable_entity
       end
     end
@@ -317,5 +326,23 @@ class MicropubController < ApplicationController
       puts e.response[:status]
       puts e.response[:body]
       puts "-" * 100
+    end
+
+    def set_blog
+      # for dev purposes, if no subdomain is used, just get the first blog.
+      if !request.subdomain.present? && Rails.env.development?
+        @blog = Blog.first
+        return
+      end
+
+      @blog = Blog.find_by(subdomain: request.subdomain)
+
+      if !@blog
+        render json: {
+          error: "invalid_request",
+          error_description: "Invalid blog subdomain"
+        }, status: :bad_request
+        return
+      end
     end
 end

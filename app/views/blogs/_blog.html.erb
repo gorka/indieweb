@@ -1,0 +1,31 @@
+<div id="<%= dom_id blog %>">
+  <p>
+    <strong>Title:</strong>
+    <%= blog.title %>
+  </p>
+
+  <p>
+    <strong>Subdomain:</strong>
+    <%= blog.subdomain %>
+  </p>
+
+  <p>
+    <strong>Authorization endpoint:</strong>
+    <%= blog.authorization_endpoint %>
+  </p>
+
+  <p>
+    <strong>Token endpoint:</strong>
+    <%= blog.token_endpoint %>
+  </p>
+
+  <p>
+    <strong>Micropub endpoint:</strong>
+    <%= micropub_url(subdomain: blog.subdomain) %>
+  </p>
+
+  <p>
+    <strong>Rel Me:</strong>
+    <%= blog.user.email %>
+  </p>
+</div>

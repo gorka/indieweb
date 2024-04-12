@@ -13,8 +13,17 @@
   <body>
     <div>
       <% if user_signed_in? %>
-        <%= current_user.name %>
-        <%= button_to "Sign out", sign_out_path, method: :delete %>
+        <ul>
+          <li>
+            <%= current_user.name %>
+          </li>
+          <li>
+            <%= link_to "Blogs", blogs_path %>
+          </li>
+          <li>
+            <%= button_to "Sign out", sign_out_path, method: :delete %>
+          </li>
+        </ul>
       <% else %>
         <% if Rails.env.development? %>
           <%= button_to "Sign in with Developer", "/auth/developer", data: { turbo: false } %>
@@ -24,7 +33,11 @@
     </div>
 
     <% if alert %>
-      <div><%= alert %></div>
+      <div style="color: red"><%= alert %></div>
+    <% end %>
+
+    <% if notice %>
+      <div style="color: green"><%= notice %></div>
     <% end %>
 
     <%= yield %>
