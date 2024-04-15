@@ -159,7 +159,7 @@ class MicropubController < ApplicationController
     end
 
     def form_undelete_action
-      resource = resource_from_url(params[:url], "undelete")
+      resource = resource_from_url(params[:url])
 
       if resource.update(deleted_at: nil)
         head :no_content
@@ -171,7 +171,7 @@ class MicropubController < ApplicationController
       end
     end
 
-    def resource_from_url(url, from = "-")
+    def resource_from_url(url)
       path = URI.parse(url)&.path
       return unless path
 
@@ -289,6 +289,19 @@ class MicropubController < ApplicationController
         render json: {
           "error": "bad request",
           "error_description": "Something wen't wrong when deleting this resource."
+        }, status: :bad_request
+      end
+    end
+
+    def json_undelete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong when undeleting this resource."
         }, status: :bad_request
       end
     end
