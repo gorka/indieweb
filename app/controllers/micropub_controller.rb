@@ -17,11 +17,67 @@ class MicropubController < ApplicationController
     }
   }
 
+  PERMITTED_ACTIONS = %w[ delete undelete ]
+
+  class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
 
   def create
     if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED] || request.content_type =~ CONTENT_TYPES[:MULTIPART]
-      microformat = MICROFORMAT_OBJECT_TYPES[params[:h].to_sym]
+      action = request.POST[:action]
+      microformat = params[:h]
+
+      if valid_action = PERMITTED_ACTIONS.include?(action)
+        send("form_#{action}_action") and return
+      end
+
+      if !action && microformat
+        form_create_action and return
+      end
+
+      raise InvalidMicroformat if !microformat
+      raise InvalidAction      
+    end
+
+    if request.content_type =~ CONTENT_TYPES[:JSON]
+      action = params[:micropub][:action]
+      microformat_sym = params[:type]&.first&.split("-")&.pop&.to_sym
+
+      if valid_action = PERMITTED_ACTIONS.include?(action)
+        send("json_#{action}_action") and return
+      end
+
+      if !action && microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+        json_create_action(microformat) and return
+      end
+
+      raise InvalidMicroformat if !microformat
+      raise InvalidAction
+    end
+  end
+
+  private
+
+    def authenticate
+      # https://tokens.indieauth.com/#verify
+
+      token = http_header_token || post_body_token
+
+      render json: {
+        "error": "unauthorized",
+        "error_description": "You must provide a Bearer token."
+      }, status: :unauthorized and return if !token
+
+      render json: {
+        "error": "bad request",
+        "error_description": "You must provide a Bearer token."
+      }, status: :bad_request and return if http_header_token && post_body_token
+
+      verify_token(token)
+    end
+
+    def form_create_action
+      microformat = MICROFORMAT_OBJECT_TYPES[params[:h]&.to_sym]
 
       raise InvalidMicroformat if !microformat
 
@@ -89,12 +145,51 @@ class MicropubController < ApplicationController
       end
     end
 
-    if request.content_type =~ CONTENT_TYPES[:JSON]
-      microformat_param = params[:type]&.first&.split("-")&.pop
-      microformat = MICROFORMAT_OBJECT_TYPES[microformat_param.to_sym]
+    def form_delete_action
+      resource = resource_from_url(params[:url])
 
-      raise InvalidMicroformat if !microformat
+      if resource.update(deleted_at: Time.now)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong when deleting this resource."
+        }, status: :bad_request
+      end
+    end
 
+    def form_undelete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong when undeleting this resource."
+        }, status: :bad_request
+      end
+    end
+
+    def resource_from_url(url)
+      path = URI.parse(url)&.path
+      return unless path
+
+      route = Rails.application.routes.recognize_path(path)
+
+      microformat_sym = route[:controller].singularize.to_sym
+      return unless microformat_sym
+
+      microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+      return unless microformat
+
+      microformat_class = microformat[:class]
+      return unless microformat_class
+
+      microformat_class.unscoped.find_by(id: route[:id])
+    end
+
+    def json_create_action(microformat)
       properties = params[:properties]
 
       microformat_object = microformat[:class].new
@@ -185,6 +280,32 @@ class MicropubController < ApplicationController
       verify_token(token)
     end
 
+    def json_delete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: Time.now)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong when deleting this resource."
+        }, status: :bad_request
+      end
+    end
+
+    def json_undelete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong when undeleting this resource."
+        }, status: :bad_request
+      end
+    end
+
     def http_header_token
       authenticate_with_http_token { |token, _options| token }
     end
@@ -194,8 +315,6 @@ class MicropubController < ApplicationController
     end
 
     def verify_token(token)
-      
-
       # todo: use blog's token_endpoint
       token_endpoint = "https://tokens.indieauth.com/token"
 
