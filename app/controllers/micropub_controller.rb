@@ -68,10 +68,11 @@ class MicropubController < ApplicationController
         "error_description": "You must provide a Bearer token."
       }, status: :unauthorized and return if !token
 
-      render json: {
-        "error": "bad request",
-        "error_description": "You must provide a Bearer token."
-      }, status: :bad_request and return if http_header_token && post_body_token
+      # todo: quill client sends both tokens at the same time.
+      # render json: {
+      #   "error": "bad request",
+      #   "error_description": "You must provide a Bearer token."
+      # }, status: :bad_request and return if http_header_token && post_body_token
 
       verify_token(token)
     end
@@ -256,28 +257,6 @@ class MicropubController < ApplicationController
       else
         head :unprocessable_entity
       end
-    end
-  end
-
-  private
-
-    def authenticate
-      # https://tokens.indieauth.com/#verify
-
-      token = http_header_token || post_body_token
-
-      render json: {
-        "error": "unauthorized",
-        "error_description": "You must provide a Bearer token."
-      }, status: :unauthorized and return if !token
-
-      # todo: quill client sends both tokens at the same time.
-      # render json: {
-      #   "error": "bad request",
-      #   "error_description": "You must provide a Bearer token."
-      # }, status: :bad_request and return if http_header_token && post_body_token
-
-      verify_token(token)
     end
 
     def json_delete_action
