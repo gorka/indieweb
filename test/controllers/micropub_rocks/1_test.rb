@@ -1,13 +1,20 @@
 require "test_helper"
 
 class MicropubRocks1Test < ActionDispatch::IntegrationTest
+  setup do
+    # todo: mock to avoid http requests during tests.
+    @headers = {
+      "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZSI6Imh0dHBzOlwvXC9maW5jaC1wb3B1bGFyLWltcGFsYS5uZ3Jvay1mcmVlLmFwcFwvIiwiaXNzdWVkX2J5IjoiaHR0cHM6XC9cL3Rva2Vucy5pbmRpZWF1dGguY29tXC90b2tlbiIsImNsaWVudF9pZCI6Imh0dHBzOlwvXC9taWNyb3B1Yi5yb2Nrc1wvIiwiaXNzdWVkX2F0IjoxNjkzODU3ODk3LCJzY29wZSI6ImNyZWF0ZSB1cGRhdGUgZGVsZXRlIHVuZGVsZXRlIiwibm9uY2UiOjg4Njc4OTY5fQ.BPoiJoCYxobqK8QJHc3MeolyStkEZl5pQIw2pD9isNg"
+    }
+  end
+
   test "100: Create an h-entry post (form-encoded)" do
     data = {
       h: "entry",
       content: "Micropub test of creating a basic h-entry"
     }
 
-    post micropub_path, params: data
+    post micropub_path, params: data, headers: @headers
 
     assert_response :created
   end
@@ -19,7 +26,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       category: [ "test1", "test2" ]
     }
 
-    post micropub_path, params: data
+    post micropub_path, params: data, headers: @headers
 
     assert_response :created
 
@@ -39,7 +46,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       photo: "https://micropub.rocks/media/sunset.jpg"
     }
 
-    post micropub_path, params: data
+    post micropub_path, params: data, headers: @headers
 
     assert_response :created
 
@@ -57,7 +64,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       category: "test1"
     }
 
-    post micropub_path, params: data
+    post micropub_path, params: data, headers: @headers
 
     assert_response :created
 

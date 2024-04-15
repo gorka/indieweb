@@ -203,9 +203,9 @@ class MicropubController < ApplicationController
         "Authorization": "Bearer #{token}"
       })
 
-      puts "-" * 100
-      p JSON.parse(response.body)
-      puts "-" * 100
+      # puts "-" * 100
+      # p JSON.parse(response.body)
+      # puts "-" * 100
 
       # todo:
       # - verify that me is the same blog domain
