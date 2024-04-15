@@ -17,7 +17,7 @@ class MicropubController < ApplicationController
     }
   }
 
-  PERMITTED_ACTIONS = %w[ create delete ]
+  PERMITTED_ACTIONS = %w[ delete undelete ]
 
   class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
@@ -153,12 +153,25 @@ class MicropubController < ApplicationController
       else
         render json: {
           "error": "bad request",
-          "error_description": "Something wen't wrong then deleting this resource."
+          "error_description": "Something wen't wrong when deleting this resource."
         }, status: :bad_request
       end
     end
 
-    def resource_from_url(url)
+    def form_undelete_action
+      resource = resource_from_url(params[:url], "undelete")
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong when undeleting this resource."
+        }, status: :bad_request
+      end
+    end
+
+    def resource_from_url(url, from = "-")
       path = URI.parse(url)&.path
       return unless path
 
@@ -173,7 +186,7 @@ class MicropubController < ApplicationController
       microformat_class = microformat[:class]
       return unless microformat_class
 
-      microformat_class.find_by(id: route[:id])
+      microformat_class.unscoped.find_by(id: route[:id])
     end
 
     def json_create_action(microformat)
@@ -275,7 +288,7 @@ class MicropubController < ApplicationController
       else
         render json: {
           "error": "bad request",
-          "error_description": "Something wen't wrong then deleting this resource."
+          "error_description": "Something wen't wrong when deleting this resource."
         }, status: :bad_request
       end
     end
