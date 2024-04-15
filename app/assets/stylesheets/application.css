@@ -13,3 +13,11 @@
  *= require_tree .
  *= require_self
  */
+
+article img {
+  max-width: 100%;
+}
+
+.container {
+  max-width: 960px;
+}
