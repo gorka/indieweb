@@ -8,6 +8,8 @@ class Entry < ApplicationRecord
   accepts_nested_attributes_for :categorizations, reject_if: :empty_or_assigned_category
   accepts_nested_attributes_for :microformat_photos
 
+  default_scope { where(deleted_at: nil) }
+
   private
 
     def empty_or_assigned_category(attributes)
