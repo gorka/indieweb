@@ -1,4 +1,4 @@
-class EntriesController < ApplicationController
+class Public::EntriesController < PublicController
   before_action :set_entry, only: %i[ show ]
 
   def show

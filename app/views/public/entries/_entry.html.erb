@@ -1,0 +1,22 @@
+<article class="h-entry">
+  <div class="e-content">
+    <% entry.photos_with_alt.each do |photo_with_alt| %>
+      <%= image_tag photo_with_alt.photo, alt: photo_with_alt.alt, class: "u-photo" if photo_with_alt.photo.attached? %>
+    <% end %>
+
+    <div>
+      <%== entry.content %>
+    </div>
+  </div>
+
+  <%= link_to entry_path(entry), class: "u-url" do %>
+    <time class="dt-published" datetime="<%= entry.created_at.iso8601 %>"><%= l(entry.created_at, format: :short) %></time>
+  <% end %>
+  <% if entry.categories.any? %>
+    <div>
+      <% entry.categories.each do |category| %>
+        <span class="p-category"><%= category.name %></span>
+      <% end %>
+    </div>
+  <% end %>
+</article>

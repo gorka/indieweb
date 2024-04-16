@@ -292,18 +292,15 @@ class MicropubController < ApplicationController
       path = URI.parse(url)&.path
       return unless path
 
-      route = Rails.application.routes.recognize_path(path)
+      controller_name, resource_id = path.split("/").reject(&:empty?)
 
-      microformat_sym = route[:controller].singularize.to_sym
-      return unless microformat_sym
-
-      microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+      microformat = MICROFORMAT_OBJECT_TYPES[controller_name.singularize.to_sym]
       return unless microformat
 
       microformat_class = microformat[:class]
       return unless microformat_class
 
-      microformat_class.unscoped.find_by(id: route[:id])
+      microformat_class.unscoped.find_by(id: resource_id)
     end
 
     def set_blog
