@@ -176,10 +176,11 @@ class MicropubController < ApplicationController
         "error_description": "You must provide an auth token"
       }, status: :unauthorized and return if !token
 
-      render json: {
-        "error": "bad request",
-        "error_description": "Provide only one auth token"
-      }, status: :bad_request and return if http_header_token && post_body_token
+      # todo: Quill sends auth token both ways and I want to use Quill.
+      # render json: {
+      #   "error": "bad request",
+      #   "error_description": "Provide only one auth token"
+      # }, status: :bad_request and return if http_header_token && post_body_token
 
       data, error = IndieAuth::TokenVerifier.verify(token)
 
