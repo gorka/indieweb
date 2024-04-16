@@ -1,6 +1,12 @@
 require "test_helper"
 
 class MicropubRocks1Test < ActionDispatch::IntegrationTest
+  setup do
+    @headers = { "Authorization": "Bearer fake" }
+
+    IndieAuth::TokenVerifier.stubs(:verify).returns([{}, nil])
+  end
+
   test "200: Create an h-entry post (JSON)" do
     data = {
       "type": ["h-entry"],
@@ -9,7 +15,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json
+    post micropub_path, params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -31,7 +37,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json
+    post micropub_path, params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -54,7 +60,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json
+    post micropub_path, params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -73,7 +79,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json
+    post micropub_path, params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -98,7 +104,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json
+    post micropub_path, params: data, as: :json, headers: @headers
 
     assert_response :created
 

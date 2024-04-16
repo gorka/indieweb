@@ -1,6 +1,12 @@
 require "test_helper"
 
 class MicropubRocks1Test < ActionDispatch::IntegrationTest
+  setup do
+    @headers = { "Authorization": "Bearer fake" }
+
+    IndieAuth::TokenVerifier.stubs(:verify).returns([{}, nil])
+  end
+
   test "300: Create an h-entry with a photo (multipart)" do
     data = {
       h: "entry",
@@ -8,7 +14,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       photo: fixture_file_upload("sunset.jpg", "image/jpeg")
     }
 
-    post micropub_path, params: data
+    post micropub_path, params: data, headers: @headers
 
     assert_response :created
 
@@ -29,7 +35,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       ]
     }
 
-    post micropub_path, params: data
+    post micropub_path, params: data, headers: @headers
 
     assert_response :created
 
