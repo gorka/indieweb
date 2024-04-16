@@ -173,15 +173,25 @@ class MicropubController < ApplicationController
 
       render json: {
         "error": "unauthorized",
-        "error_description": "You must provide a Bearer token."
+        "error_description": "You must provide an auth token"
       }, status: :unauthorized and return if !token
 
       render json: {
         "error": "bad request",
-        "error_description": "You must provide a Bearer token."
+        "error_description": "Provide only one auth token"
       }, status: :bad_request and return if http_header_token && post_body_token
 
-      verify_token(token)
+      data, error = IndieAuth::TokenVerifier.verify(token)
+
+      render json: error[:body], status: error[:status] and return if error
+
+      data
+
+      # todo:
+      # - verify that me is the same blog domain
+      # - verify that issued_by is the same blog token_endpoint
+      # - verify scope permission
+      # - store? client_id for reference
     end
 
     def http_header_token
@@ -190,33 +200,5 @@ class MicropubController < ApplicationController
 
     def post_body_token
       params[:access_token]
-    end
-
-    def verify_token(token)
-      
-
-      # todo: use blog's token_endpoint
-      token_endpoint = "https://tokens.indieauth.com/token"
-
-      response = Faraday.get(token_endpoint, {}, {
-        "Accept": "application/json",
-        "Authorization": "Bearer #{token}"
-      })
-
-      puts "-" * 100
-      p JSON.parse(response.body)
-      puts "-" * 100
-
-      # todo:
-      # - verify that me is the same blog domain
-      # - verify that issued_by is the same blog token_endpoint
-      # - verify scope permission
-      # - store? client_id for reference
-
-    rescue Faraday::Error => e
-      puts "-" * 100
-      puts e.response[:status]
-      puts e.response[:body]
-      puts "-" * 100
     end
 end
