@@ -1,0 +1,11 @@
+.alert {
+  padding: .5rem;
+  color: red;
+  border: 1px solid red;
+}
+
+.notice {
+  padding: .5rem;
+  color: green;
+  border: 1px solid green;
+}

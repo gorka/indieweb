@@ -11,9 +11,10 @@ Rails.application.routes.draw do
   delete "/sign-out", to: "users/sessions#destroy"
 
   resources :blogs, param: :subdomain
-  resources :entries, only: %i[ show ]
 
   constraints(Subdomain) do
+    get "/", to: "public/blogs#show"
+    resources :entries, only: %i[ show ], module: "public"
     resource :micropub, only: %i[ create ], controller: "micropub", as: "micropub"
   end
 
