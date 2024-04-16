@@ -76,8 +76,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_15_151006) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "blog_id", null: false
     t.datetime "deleted_at"
+    t.bigint "blog_id", null: false
     t.index ["blog_id"], name: "index_entries_on_blog_id"
   end
 
