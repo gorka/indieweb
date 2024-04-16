@@ -43,4 +43,41 @@ require "test_helper"
 
      assert_response :not_found
    end
- end
+
+  test "501: Delete a post (JSON)" do
+    # Create post:
+    data = {
+      "type": ["h-entry"],
+      "properties": {
+        "content": ["This post will be deleted when the test succeeds."]
+      }
+    }
+
+    post micropub_path, params: data, as: :json, headers: @headers
+
+    assert_response :created
+
+    # Verify post exists:
+    last_entry = Entry.last
+
+    get entry_path(last_entry)
+
+    assert_select ".h-entry", count: 1
+    assert_select ".e-content", text: "This post will be deleted when the test succeeds."
+
+    # Delete post:
+    delete_data = {
+      "action": "delete",
+      "url": entry_path(last_entry)
+    }
+
+    post micropub_path, params: delete_data, as: :json, headers: @headers
+
+    assert_response :no_content
+
+    # Verify post has been deleted:
+    get entry_path(last_entry)
+
+    assert_response :not_found
+  end
+end

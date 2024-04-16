@@ -25,21 +25,34 @@ class MicropubController < ApplicationController
   def create
     if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED] || request.content_type =~ CONTENT_TYPES[:MULTIPART]
       action = request.POST[:action]
-      entry_type = params[:h]
+      microformat = params[:h]
 
       if valid_action = PERMITTED_ACTIONS.include?(action)
         send("form_#{action}_action") and return
       end
 
-      if !action && entry_type
+      if !action && microformat
         form_create_action and return
       end
 
+      raise InvalidMicroformat if !microformat
       raise InvalidAction
     end
 
     if request.content_type =~ CONTENT_TYPES[:JSON]
-      json_create_action and return
+      action = params[:micropub][:action]
+      microformat_sym = params[:type]&.first&.split("-")&.pop&.to_sym
+
+      if valid_action = PERMITTED_ACTIONS.include?(action)
+        send("json_#{action}_action") and return
+      end
+
+      if !action && microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+        json_create_action(microformat) and return
+      end
+
+      raise InvalidMicroformat if !microformat
+      raise InvalidAction
     end
   end
 
@@ -160,12 +173,7 @@ class MicropubController < ApplicationController
       authenticate_with_http_token { |token, _options| token }
     end
 
-    def json_create_action
-      microformat_param = params[:type]&.first&.split("-")&.pop
-      microformat = MICROFORMAT_OBJECT_TYPES[microformat_param.to_sym]
-
-      raise InvalidMicroformat if !microformat
-
+    def json_create_action(microformat)
       properties = params[:properties]
 
       microformat_object = microformat[:class].new
@@ -231,6 +239,19 @@ class MicropubController < ApplicationController
         head :created
       else
         head :unprocessable_entity
+      end
+    end
+
+    def json_delete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: Time.now)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something wen't wrong then deleting this resource."
+        }, status: :bad_request
       end
     end
 
