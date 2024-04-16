@@ -1,0 +1,22 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+valid:
+  user: valid
+  title: Nicolas Cage's Awesome Blog
+  subdomain: nicolascage
+  authorization_endpoint: https://indieauth.com/auth
+  token_endpoint: https://tokens.indieauth.com/token
+
+another_from_nicolas:
+  user: valid
+  title: Another Blog
+  subdomain: anotherblog
+  authorization_endpoint: https://indieauth.com/auth
+  token_endpoint: https://tokens.indieauth.com/token
+
+two:
+  user: two
+  title: Two's blog
+  subdomain: two
+  authorization_endpoint: https://indieauth.com/auth
+  token_endpoint: https://tokens.indieauth.com/token

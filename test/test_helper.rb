@@ -28,4 +28,9 @@ module OmniAuthHelper
       }
     )
   end
+
+  def sign_in_with_provider(provider, uid, user)
+    omniauth_setup_for_user(provider, uid, user)
+    get auth_callback_url(provider)
+  end
 end
