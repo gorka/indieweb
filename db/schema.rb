@@ -76,7 +76,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_15_151006) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "blog_id", null: false
     t.datetime "deleted_at"
+    t.index ["blog_id"], name: "index_entries_on_blog_id"
   end
 
   create_table "microformat_photos", force: :cascade do |t|
@@ -115,6 +117,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_15_151006) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "blogs", "users"
   add_foreign_key "categorizations", "categories"
+  add_foreign_key "entries", "blogs"
   add_foreign_key "microformat_photos", "photos_with_alt", column: "photo_with_alt_id"
   add_foreign_key "omniauth_providers", "users"
 end

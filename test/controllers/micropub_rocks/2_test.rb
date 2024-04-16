@@ -15,7 +15,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -37,7 +37,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -60,7 +60,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -79,7 +79,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -104,7 +104,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 

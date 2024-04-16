@@ -14,7 +14,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       photo: fixture_file_upload("sunset.jpg", "image/jpeg")
     }
 
-    post micropub_path, params: data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, headers: @headers
 
     assert_response :created
 
@@ -35,7 +35,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       ]
     }
 
-    post micropub_path, params: data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, headers: @headers
 
     assert_response :created
 

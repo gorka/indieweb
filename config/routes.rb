@@ -1,3 +1,9 @@
+class Subdomain
+  def self.matches?(request)
+    request.subdomain.present? && request.subdomain != "www"
+  end
+end
+
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -6,7 +12,10 @@ Rails.application.routes.draw do
 
   resources :blogs, param: :subdomain
   resources :entries, only: %i[ show ]
-  resource :micropub, only: %i[ create ], controller: "micropub"
+
+  constraints(Subdomain) do
+    resource :micropub, only: %i[ create ], controller: "micropub", as: "micropub"
+  end
 
   root "home#index"
 end
