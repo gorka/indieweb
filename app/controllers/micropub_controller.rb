@@ -17,10 +17,77 @@ class MicropubController < ApplicationController
     }
   }
 
+  PERMITTED_ACTIONS = %w[ delete undelete ]
+
+  class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
 
   def create
     if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED] || request.content_type =~ CONTENT_TYPES[:MULTIPART]
+      action = request.POST[:action]
+      microformat = params[:h]
+
+      if valid_action = PERMITTED_ACTIONS.include?(action)
+        send("form_#{action}_action") and return
+      end
+
+      if !action && microformat
+        form_create_action and return
+      end
+
+      raise InvalidMicroformat if !microformat
+      raise InvalidAction
+    end
+
+    if request.content_type =~ CONTENT_TYPES[:JSON]
+      action = params[:micropub][:action]
+      microformat_sym = params[:type]&.first&.split("-")&.pop&.to_sym
+
+      if valid_action = PERMITTED_ACTIONS.include?(action)
+        send("json_#{action}_action") and return
+      end
+
+      if !action && microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+        json_create_action(microformat) and return
+      end
+
+      raise InvalidMicroformat if !microformat
+      raise InvalidAction
+    end
+  end
+
+  private
+
+    def authenticate
+      # https://tokens.indieauth.com/#verify
+
+      token = http_header_token || post_body_token
+
+      render json: {
+        "error": "unauthorized",
+        "error_description": "You must provide an auth token"
+      }, status: :unauthorized and return if !token
+
+      # todo: Quill sends auth token both ways and I want to use Quill.
+      # render json: {
+      #   "error": "bad request",
+      #   "error_description": "Provide only one auth token"
+      # }, status: :bad_request and return if http_header_token && post_body_token
+
+      data, error = IndieAuth::TokenVerifier.verify(token)
+
+      render json: error[:body], status: error[:status] and return if error
+
+      data
+
+      # todo:
+      # - verify that me is the same blog domain
+      # - verify that issued_by is the same blog token_endpoint
+      # - verify scope permission
+      # - store? client_id for reference
+    end
+
+    def form_create_action
       microformat = MICROFORMAT_OBJECT_TYPES[params[:h].to_sym]
 
       raise InvalidMicroformat if !microformat
@@ -89,12 +156,37 @@ class MicropubController < ApplicationController
       end
     end
 
-    if request.content_type =~ CONTENT_TYPES[:JSON]
-      microformat_param = params[:type]&.first&.split("-")&.pop
-      microformat = MICROFORMAT_OBJECT_TYPES[microformat_param.to_sym]
+    def form_delete_action
+      resource = resource_from_url(params[:url])
 
-      raise InvalidMicroformat if !microformat
+      if resource.update(deleted_at: Time.now)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something went wrong when deleting this resource."
+        }, status: :bad_request
+      end
+    end
 
+    def form_undelete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something went wrong when undeleting this resource."
+        }, status: :bad_request
+      end
+    end
+
+    def http_header_token
+      authenticate_with_http_token { |token, _options| token }
+    end
+
+    def json_create_action(microformat)
       properties = params[:properties]
 
       microformat_object = microformat[:class].new
@@ -162,44 +254,52 @@ class MicropubController < ApplicationController
         head :unprocessable_entity
       end
     end
-  end
 
-  private
+    def json_delete_action
+      resource = resource_from_url(params[:url])
 
-    def authenticate
-      # https://tokens.indieauth.com/#verify
-
-      token = http_header_token || post_body_token
-
-      render json: {
-        "error": "unauthorized",
-        "error_description": "You must provide an auth token"
-      }, status: :unauthorized and return if !token
-
-      # todo: Quill sends auth token both ways and I want to use Quill.
-      # render json: {
-      #   "error": "bad request",
-      #   "error_description": "Provide only one auth token"
-      # }, status: :bad_request and return if http_header_token && post_body_token
-
-      data, error = IndieAuth::TokenVerifier.verify(token)
-
-      render json: error[:body], status: error[:status] and return if error
-
-      data
-
-      # todo:
-      # - verify that me is the same blog domain
-      # - verify that issued_by is the same blog token_endpoint
-      # - verify scope permission
-      # - store? client_id for reference
+      if resource.update(deleted_at: Time.now)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something went wrong when deleting this resource."
+        }, status: :bad_request
+      end
     end
 
-    def http_header_token
-      authenticate_with_http_token { |token, _options| token }
+    def json_undelete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something went wrong when undeleting this resource."
+        }, status: :bad_request
+      end
     end
 
     def post_body_token
       params[:access_token]
+    end
+
+    def resource_from_url(url)
+      path = URI.parse(url)&.path
+      return unless path
+
+      route = Rails.application.routes.recognize_path(path)
+
+      microformat_sym = route[:controller].singularize.to_sym
+      return unless microformat_sym
+
+      microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+      return unless microformat
+
+      microformat_class = microformat[:class]
+      return unless microformat_class
+
+      microformat_class.unscoped.find_by(id: route[:id])
     end
 end
