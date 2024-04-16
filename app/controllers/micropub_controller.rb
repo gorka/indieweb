@@ -268,6 +268,19 @@ class MicropubController < ApplicationController
       end
     end
 
+    def json_undelete_action
+      resource = resource_from_url(params[:url])
+
+      if resource.update(deleted_at: nil)
+        head :no_content
+      else
+        render json: {
+          "error": "bad request",
+          "error_description": "Something went wrong when undeleting this resource."
+        }, status: :bad_request
+      end
+    end
+
     def post_body_token
       params[:access_token]
     end
