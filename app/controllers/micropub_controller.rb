@@ -4,7 +4,7 @@ class MicropubController < ApplicationController
   skip_forgery_protection
 
   before_action :set_blog, only: %i[ create ]
-  before_action :authenticate, only: %i[ create ]
+  before_action :authenticate, only: %i[ show create ]
 
   CONTENT_TYPES = {
     FORM_ENCODED: /application\/x-www-form-urlencoded/,
@@ -14,14 +14,35 @@ class MicropubController < ApplicationController
 
   MICROFORMAT_OBJECT_TYPES = {
     entry: {
-      class: Entry
+      class: Entry,
+      supported_properties: [
+        "content",
+        "category",
+        "photo"
+      ]
     }
-  }
+  }.with_indifferent_access
 
   PERMITTED_ACTIONS = %w[ delete undelete ]
 
   class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
+
+  def show
+    case params[:q]
+    when "config"
+      render json: {}, status: :ok
+    when "syndicate-to"
+      render json: { "syndicate-to": [] }, status: :ok
+    when "source"
+      resource = resource_from_url(params[:url])
+      render json: format_resource_for_source(resource, params[:properties]), status: :ok
+    else
+      head :bad_request
+      return
+    end
+
+  end
 
   def create
     if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED] || request.content_type =~ CONTENT_TYPES[:MULTIPART]
@@ -86,6 +107,43 @@ class MicropubController < ApplicationController
       # - verify that issued_by is the same blog token_endpoint
       # - verify scope permission
       # - store? client_id for reference
+    end
+
+    def format_resource_for_source(resource, properties = [])
+      microformat = MICROFORMAT_OBJECT_TYPES[resource.class.name.downcase]
+
+      # todo: error if microformat doesn't exist. maybe one level up.
+
+      supported_properties = microformat[:supported_properties]
+      properties_to_return = properties.to_a.any? ? properties & supported_properties : supported_properties
+
+      properties = {}
+
+      if properties_to_return.include?("content")
+        properties[:content] = [resource.content]
+      end
+
+      if properties_to_return.include?("category") && resource.categories.any?
+        properties[:category] = resource.categories.map(&:name)
+      end
+
+      if properties_to_return.include?("photo") && resource.photos_with_alt.any?
+        properties[:photo] = resource.photos_with_alt.map { |photo|
+          if photo.alt?
+            {
+              value: url_for(photo.photo),
+              alt: photo.alt
+            }
+          else
+            url_for(photo.photo)
+          end
+        }
+      end
+
+      {
+        type: ["h-entry"],
+        properties: properties
+      }
     end
 
     def form_create_action
