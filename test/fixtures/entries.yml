@@ -1,10 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 without_categories:
+  blog: valid
   content: Entry without categories
 
 with_categories:
+  blog: valid
   content: Entry with categories
 
 with_image_with_alt:
+  blog: valid
   content: Entry with image with alt

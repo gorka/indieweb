@@ -13,7 +13,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       content: "Micropub test of creating a basic h-entry"
     }
 
-    post micropub_path, params: data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, headers: @headers
 
     assert_response :created
   end
@@ -25,7 +25,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       category: [ "test1", "test2" ]
     }
 
-    post micropub_path, params: data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, headers: @headers
 
     assert_response :created
 
@@ -45,7 +45,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       photo: "https://micropub.rocks/media/sunset.jpg"
     }
 
-    post micropub_path, params: data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, headers: @headers
 
     assert_response :created
 
@@ -63,7 +63,7 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
       category: "test1"
     }
 
-    post micropub_path, params: data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, headers: @headers
 
     assert_response :created
 

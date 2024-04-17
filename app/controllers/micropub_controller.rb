@@ -3,6 +3,7 @@ require "open-uri"
 class MicropubController < ApplicationController
   skip_forgery_protection
 
+  before_action :set_blog, only: %i[ create ]
   before_action :authenticate, only: %i[ create ]
 
   CONTENT_TYPES = {
@@ -93,6 +94,7 @@ class MicropubController < ApplicationController
       raise InvalidMicroformat if !microformat
 
       microformat_object = microformat[:class].new
+      microformat_object.blog = @blog
 
       if params[:content]
         microformat_object.content = params[:content]
@@ -190,6 +192,7 @@ class MicropubController < ApplicationController
       properties = params[:properties]
 
       microformat_object = microformat[:class].new
+      microformat_object.blog = @blog
 
       if properties[:content].any?
         content = properties[:content].first
@@ -289,17 +292,25 @@ class MicropubController < ApplicationController
       path = URI.parse(url)&.path
       return unless path
 
-      route = Rails.application.routes.recognize_path(path)
+      controller_name, resource_id = path.split("/").reject(&:empty?)
 
-      microformat_sym = route[:controller].singularize.to_sym
-      return unless microformat_sym
-
-      microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+      microformat = MICROFORMAT_OBJECT_TYPES[controller_name.singularize.to_sym]
       return unless microformat
 
       microformat_class = microformat[:class]
       return unless microformat_class
 
-      microformat_class.unscoped.find_by(id: route[:id])
+      microformat_class.unscoped.find_by(id: resource_id)
+    end
+
+    def set_blog
+      @blog = Blog.find_by(subdomain: request.subdomain)
+
+      if !@blog
+        render json: {
+          error: "invalid_request",
+          error_description: "Invalid blog subdomain"
+        }, status: :bad_request
+      end
     end
 end

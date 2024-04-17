@@ -3,3 +3,7 @@
 valid:
   name: Nicolas Cage
   email: nicolas.cage@email.com
+
+two:
+  name: Two
+  email: two@email.com

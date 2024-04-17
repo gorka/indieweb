@@ -4,3 +4,8 @@ valid:
   user: valid
   provider: :developer
   uid: 123456
+
+two:
+  user: two
+  provider: :developer
+  uid: 987654

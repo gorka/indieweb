@@ -14,7 +14,7 @@ require "test_helper"
        content: "This post will be deleted when the test succeeds."
      }
 
-     post micropub_path, params: create_data, headers: @headers
+     post micropub_url(subdomain: blogs(:valid).subdomain), params: create_data, headers: @headers
 
      assert_response :created
 
@@ -33,7 +33,7 @@ require "test_helper"
        url: entry_url(last_entry)
      }
 
-     post micropub_path, params: delete_data, headers: @headers
+     post micropub_url(subdomain: blogs(:valid).subdomain), params: delete_data, headers: @headers
 
      assert_response :no_content
 
@@ -53,7 +53,7 @@ require "test_helper"
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -71,7 +71,7 @@ require "test_helper"
       "url": entry_url(last_entry)
     }
 
-    post micropub_path, params: delete_data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: delete_data, as: :json, headers: @headers
 
     assert_response :no_content
 
@@ -88,7 +88,7 @@ require "test_helper"
       content: "This post will be deleted, and should be restored after undeleting it."
     }
 
-    post micropub_path, params: create_data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: create_data, headers: @headers
 
     assert_response :created
 
@@ -106,7 +106,7 @@ require "test_helper"
       url: entry_url(last_entry)
     }
 
-    post micropub_path, params: delete_data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: delete_data, headers: @headers
 
     assert_response :no_content
 
@@ -121,7 +121,7 @@ require "test_helper"
       url: entry_url(last_entry)
     }
 
-    post micropub_path, params: undelete_data, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: undelete_data, headers: @headers
 
     # Verify post has been undeleted:
     get entry_url(last_entry)
@@ -140,7 +140,7 @@ require "test_helper"
       }
     }
 
-    post micropub_path, params: data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: data, as: :json, headers: @headers
 
     assert_response :created
 
@@ -158,7 +158,7 @@ require "test_helper"
       "url": entry_url(last_entry)
     }
 
-    post micropub_path, params: delete_data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: delete_data, as: :json, headers: @headers
 
     assert_response :no_content
 
@@ -173,7 +173,7 @@ require "test_helper"
       url: entry_url(last_entry)
     }
 
-    post micropub_path, params: undelete_data, as: :json, headers: @headers
+    post micropub_url(subdomain: blogs(:valid).subdomain), params: undelete_data, as: :json, headers: @headers
 
     # Verify post has been undeleted:
     get entry_url(last_entry)
