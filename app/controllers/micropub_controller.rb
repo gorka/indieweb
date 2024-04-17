@@ -23,6 +23,15 @@ class MicropubController < ApplicationController
   class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
 
+  def show
+    if params[:q] != "config"
+      head :bad_request
+      return
+    end
+
+    render json: {}, status: :ok
+  end
+
   def create
     if request.content_type =~ CONTENT_TYPES[:FORM_ENCODED] || request.content_type =~ CONTENT_TYPES[:MULTIPART]
       action = request.POST[:action]
