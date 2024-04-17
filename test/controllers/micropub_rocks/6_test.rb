@@ -19,4 +19,25 @@ class MicropubRocks6Test < ActionDispatch::IntegrationTest
     assert_response :ok
     response.parsed_body.assert_valid_keys("syndicate-to")
   end
+
+  test "602: Source Query (All Properties)" do
+    # Create entry
+    blog = blogs(:valid)
+    data = {
+      type: ["h-entry"],
+      properties: {
+        content: ["Test of querying the endpoint for the source content"],
+        category: ["micropub", "test"]
+      }
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: data, as: :json, headers: @headers
+
+    assert_response :created
+
+    get micropub_url(subdomain: blog.subdomain, q: "source", url: entry_url(Entry.last))
+    
+    assert_response :ok
+    assert_equal data.to_json, response.body
+  end
 end

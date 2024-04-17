@@ -29,6 +29,9 @@ class MicropubController < ApplicationController
       render json: {}, status: :ok
     when "syndicate-to"
       render json: { "syndicate-to": [] }, status: :ok
+    when "source"
+      resource = resource_from_url(params[:url])
+      render json: format_resource_for_source(resource), status: :ok
     else
       head :bad_request
       return
@@ -99,6 +102,20 @@ class MicropubController < ApplicationController
       # - verify that issued_by is the same blog token_endpoint
       # - verify scope permission
       # - store? client_id for reference
+    end
+
+    def format_resource_for_source(resource)
+      # todo: do it more... dinamically
+      # todo: add photos (with and without alt)
+      formatted_resource = {
+        type: ["h-entry"],
+        properties: {
+          content: [resource.content],
+          category: resource.categories.map(&:name)
+        }
+      }
+
+      formatted_resource
     end
 
     def form_create_action
