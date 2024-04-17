@@ -32,7 +32,9 @@ class MicropubController < ApplicationController
   def show
     case params[:q]
     when "config"
-      render json: {}, status: :ok
+      render json: {
+        "media-endpoint": media_url
+      }, status: :ok
     when "syndicate-to"
       render json: { "syndicate-to": [] }, status: :ok
     when "source"
