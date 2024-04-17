@@ -1,10 +1,11 @@
 require "open-uri"
 
 class MicropubController < ApplicationController
+  include IndieAuth
+
   skip_forgery_protection
 
   before_action :set_blog, only: %i[ create ]
-  before_action :authenticate, only: %i[ show create ]
 
   CONTENT_TYPES = {
     FORM_ENCODED: /application\/x-www-form-urlencoded/,
@@ -79,35 +80,6 @@ class MicropubController < ApplicationController
   end
 
   private
-
-    def authenticate
-      # https://tokens.indieauth.com/#verify
-
-      token = http_header_token || post_body_token
-
-      render json: {
-        "error": "unauthorized",
-        "error_description": "You must provide an auth token"
-      }, status: :unauthorized and return if !token
-
-      # todo: Quill sends auth token both ways and I want to use Quill.
-      # render json: {
-      #   "error": "bad request",
-      #   "error_description": "Provide only one auth token"
-      # }, status: :bad_request and return if http_header_token && post_body_token
-
-      data, error = IndieAuth::TokenVerifier.verify(token)
-
-      render json: error[:body], status: error[:status] and return if error
-
-      data
-
-      # todo:
-      # - verify that me is the same blog domain
-      # - verify that issued_by is the same blog token_endpoint
-      # - verify scope permission
-      # - store? client_id for reference
-    end
 
     def format_resource_for_source(resource, properties = [])
       microformat = MICROFORMAT_OBJECT_TYPES[resource.class.name.downcase]
@@ -242,10 +214,6 @@ class MicropubController < ApplicationController
       end
     end
 
-    def http_header_token
-      authenticate_with_http_token { |token, _options| token }
-    end
-
     def json_create_action(microformat)
       properties = params[:properties]
 
@@ -340,10 +308,6 @@ class MicropubController < ApplicationController
           "error_description": "Something went wrong when undeleting this resource."
         }, status: :bad_request
       end
-    end
-
-    def post_body_token
-      params[:access_token]
     end
 
     def resource_from_url(url)
