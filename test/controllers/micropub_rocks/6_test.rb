@@ -12,4 +12,11 @@ class MicropubRocks6Test < ActionDispatch::IntegrationTest
 
     assert_response :ok
   end
+
+  test "601: Syndication Endpoint Query" do
+    get micropub_url(subdomain: blogs(:valid).subdomain, q: "syndicate-to")
+
+    assert_response :ok
+    response.parsed_body.assert_valid_keys("syndicate-to")
+  end
 end

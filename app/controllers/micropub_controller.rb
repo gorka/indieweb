@@ -24,12 +24,16 @@ class MicropubController < ApplicationController
   class InvalidMicroformat < StandardError; end
 
   def show
-    if params[:q] != "config"
+    case params[:q]
+    when "config"
+      render json: {}, status: :ok
+    when "syndicate-to"
+      render json: { "syndicate-to": [] }, status: :ok
+    else
       head :bad_request
       return
     end
 
-    render json: {}, status: :ok
   end
 
   def create
