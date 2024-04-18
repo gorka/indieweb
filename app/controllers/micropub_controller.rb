@@ -25,7 +25,7 @@ class MicropubController < ApplicationController
   }.with_indifferent_access
 
   PERMITTED_ACTIONS = %w[ delete undelete update ]
-  PERMITTED_UPDATE_ACTIONS = %w[ replace ]
+  PERMITTED_UPDATE_ACTIONS = %w[ add replace ]
 
   class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
@@ -326,6 +326,24 @@ class MicropubController < ApplicationController
           "error_description": "Something went wrong when updating this resource."
         }, status: :unprocessable_entity
       end
+    end
+
+    def json_update_add_action(resource, properties)
+      # category
+      if properties[:category]&.any?
+        categorizations_attributes = properties[:category].map { |category|
+          {
+            category_attributes: {
+              name: category
+            }
+          }
+        }
+
+        resource.categorizations_attributes = categorizations_attributes
+      end
+
+      # todo: photo
+      # todo?: content
     end
 
     def json_update_replace_action(resource, properties)
