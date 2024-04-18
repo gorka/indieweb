@@ -156,4 +156,41 @@ class MicropubRocks4Test < ActionDispatch::IntegrationTest
     assert_select ".p-category", count: 1
     assert_select ".p-category", text: "test1", count: 1
   end
+
+  test "404: Remove a property" do
+    # Create entry
+    blog = blogs(:valid)
+    data = {
+      "type": ["h-entry"],
+      "properties": {
+        "content": ["This test deletes the category property from the post. After you run the update, this post should have no categories."],
+        "category": ["test1", "test2"]
+      }
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: data, as: :json, headers: @headers
+
+    assert_response :created
+
+    last_entry = Entry.last
+    get entry_url(last_entry)
+
+    assert_select ".p-category", count: 2
+    assert_select ".p-category", text: "test1", count: 1
+    assert_select ".p-category", text: "test2", count: 1
+
+    #Update entry:
+
+    update_data = {
+      "action": "update",
+      "url": entry_url(last_entry),
+      "delete": ["category"]
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: update_data, as: :json, headers: @headers
+
+    get entry_url(last_entry)
+
+    assert_select ".p-category", count: 0
+  end
 end

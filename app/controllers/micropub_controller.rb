@@ -347,14 +347,24 @@ class MicropubController < ApplicationController
     end
 
     def json_update_delete_action(resource, properties)
-      # category
-      if properties[:category]&.any?
-        categories = Category.where(name: properties[:category])
-        resource.categorizations.where(category: categories).delete_all
-      end
+      # delete the whole property.
+      if properties.is_a?(Array)
 
-      # todo: photo
-      # todo?: content
+        if properties.include?("category")
+          resource.categorizations.delete_all
+        end
+
+        if properties.include?("photo")
+          resource.photos_with_alt.delete_all
+        end
+
+      # remove some values inside the property.
+      else
+        if properties[:category]&.any?
+          categories = Category.where(name: properties[:category])
+          resource.categorizations.where(category: categories).delete_all
+        end
+      end
     end
 
     def json_update_replace_action(resource, properties)
