@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   constraints(Subdomain) do
     get "/", to: "public/blogs#show"
     resources :entries, only: %i[ show ], module: "public"
+    resource :media, only: %i[ create ]
     resource :micropub, only: %i[ show create ], controller: "micropub", as: "micropub"
   end
 

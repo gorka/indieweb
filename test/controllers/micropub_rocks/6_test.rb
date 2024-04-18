@@ -11,6 +11,7 @@ class MicropubRocks6Test < ActionDispatch::IntegrationTest
     get micropub_url(subdomain: blogs(:valid).subdomain, q: "config"), headers: @headers
 
     assert_response :ok
+    response.parsed_body.assert_valid_keys("media-endpoint")
   end
 
   test "601: Syndication Endpoint Query" do
