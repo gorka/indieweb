@@ -25,7 +25,7 @@ class MicropubController < ApplicationController
   }.with_indifferent_access
 
   PERMITTED_ACTIONS = %w[ delete undelete update ]
-  PERMITTED_UPDATE_ACTIONS = %w[ add replace ]
+  PERMITTED_UPDATE_ACTIONS = %w[ add delete replace ]
 
   class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
@@ -340,6 +340,17 @@ class MicropubController < ApplicationController
         }
 
         resource.categorizations_attributes = categorizations_attributes
+      end
+
+      # todo: photo
+      # todo?: content
+    end
+
+    def json_update_delete_action(resource, properties)
+      # category
+      if properties[:category]&.any?
+        categories = Category.where(name: properties[:category])
+        resource.categorizations.where(category: categories).delete_all
       end
 
       # todo: photo
