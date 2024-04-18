@@ -1,0 +1,46 @@
+name: Test
+on: push
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: p4$$w0rd
+          POSTGRES_DB: indieblog_test
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup test database
+        env:
+          RAILS_ENV: test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: p4$$w0rd
+          POSTGRES_DB: indieblog_test
+        run: bin/rails db:setup
+
+      - name: Precompile assets
+        run: bin/rails assets:precompile
+
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: p4$$w0rd
+          POSTGRES_DB: indieblog_test
+        run: bin/rails test
