@@ -1,4 +1,8 @@
 <article class="h-entry">
+  <% if @entry.name %>
+    <h1 class="p-name"><%= @entry.name %></h1>
+  <% end %>
+
   <div class="e-content">
     <% entry.photos_with_alt.each do |photo_with_alt| %>
       <%= image_tag photo_with_alt.photo, alt: photo_with_alt.alt, class: "u-photo" if photo_with_alt.photo.attached? %>

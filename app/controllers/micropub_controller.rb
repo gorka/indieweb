@@ -17,8 +17,9 @@ class MicropubController < ApplicationController
     entry: {
       class: Entry,
       supported_properties: [
-        "content",
         "category",
+        "content",
+        "name",
         "photo"
       ]
     }
@@ -129,6 +130,10 @@ class MicropubController < ApplicationController
       microformat_object = microformat[:class].new
       microformat_object.blog = @blog
 
+      if params[:name]
+        microformat_object.name = params[:name]
+      end
+
       if params[:content]
         microformat_object.content = params[:content]
       end
@@ -222,6 +227,10 @@ class MicropubController < ApplicationController
 
       microformat_object = microformat[:class].new
       microformat_object.blog = @blog
+
+      if properties[:name]&.any?
+        microformat_object.name = properties[:name].first
+      end
 
       if properties[:content].any?
         content = properties[:content].first
@@ -354,6 +363,10 @@ class MicropubController < ApplicationController
       # delete the whole property.
       if properties.is_a?(Array)
 
+        if properties.include?("name")
+          resource.name = nil
+        end
+
         if properties.include?("category")
           resource.categorizations.delete_all
         end
@@ -372,6 +385,11 @@ class MicropubController < ApplicationController
     end
 
     def json_update_replace_action(resource, properties)
+      # name
+      if properties[:name]
+        resource.name = properties[:name].first
+      end
+
       # content
       if properties[:content]
         resource.content = properties[:content].first
