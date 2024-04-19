@@ -130,6 +130,10 @@ class MicropubController < ApplicationController
       microformat_object = microformat[:class].new
       microformat_object.blog = @blog
 
+      if params[:name]
+        microformat_object.name = params[:name]
+      end
+
       if params[:content]
         microformat_object.content = params[:content]
       end
