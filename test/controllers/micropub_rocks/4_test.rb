@@ -193,4 +193,33 @@ class MicropubRocks4Test < ActionDispatch::IntegrationTest
 
     assert_select ".p-category", count: 0
   end
+
+  test "405: Reject the request if operation is not an array" do
+    # Create entry
+    blog = blogs(:valid)
+    data = {
+      "type": ["h-entry"],
+      "properties": {
+        "content": ["Micropub update test #405."]
+      }
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: data, as: :json, headers: @headers
+
+    assert_response :created
+
+    #Update entry:
+
+    last_entry = Entry.last
+
+    update_data = {
+      "action": "update",
+      "url": entry_url(last_entry),
+      "replace": "This is not a valid update request."
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: update_data, as: :json, headers: @headers
+
+    assert_response :bad_request
+  end
 end

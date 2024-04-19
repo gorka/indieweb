@@ -54,11 +54,11 @@ class MicropubController < ApplicationController
       microformat = params[:h]
 
       if valid_action = PERMITTED_ACTIONS.include?(action)
-        send("form_#{action}_action") and return
+        return send("form_#{action}_action")
       end
 
       if !action && microformat
-        form_create_action and return
+        return form_create_action
       end
 
       raise InvalidMicroformat if !microformat
@@ -70,11 +70,11 @@ class MicropubController < ApplicationController
       microformat_sym = params[:type]&.first&.split("-")&.pop&.to_sym
 
       if valid_action = PERMITTED_ACTIONS.include?(action)
-        send("json_#{action}_action", resource_from_url(params[:url])) and return
+        return send("json_#{action}_action", resource_from_url(params[:url]))
       end
 
       if !action && microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
-        json_create_action(microformat) and return
+        return json_create_action(microformat)
       end
 
       raise InvalidMicroformat if !microformat
@@ -310,10 +310,15 @@ class MicropubController < ApplicationController
     end
 
     def json_update_action(resource)
-      # para cada propiedad, ver si es un PERMITTED_UPDATE_ACTIONS. si es asi, llamar a la funcion correspondiente y pasarle el hash:
-
       params[:micropub].each do |update_action, properties|
         if PERMITTED_UPDATE_ACTIONS.include?(update_action)
+          if ![ActionController::Parameters, Array].include?(properties.class)
+            return render json: {
+              "error": "bad request",
+              "error_description": "Invalid info provided."
+            }, status: :bad_request
+          end
+
           send("json_update_#{update_action}_action", resource, properties)
         end
       end
@@ -343,7 +348,6 @@ class MicropubController < ApplicationController
       end
 
       # todo: photo
-      # todo?: content
     end
 
     def json_update_delete_action(resource, properties)
