@@ -1,6 +1,6 @@
 <article class="h-entry">
-  <% if @entry.name %>
-    <h1 class="p-name"><%= @entry.name %></h1>
+  <% if entry.name %>
+    <h2 class="p-name"><%= link_to entry.name, entry %></h2>
   <% end %>
 
   <div class="e-content">
