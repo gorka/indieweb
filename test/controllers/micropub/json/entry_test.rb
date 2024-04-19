@@ -26,4 +26,45 @@ class MicropubJsonEntryTest < ActionDispatch::IntegrationTest
     assert_select ".p-name", text: "The title"
     assert_select ".e-content", text: "The content."
   end
+
+  test "An entry can have it's name updated" do
+    blog = blogs(:valid)
+    data = {
+      "type": ["h-entry"],
+      "properties": {
+        "name": ["The title to be updated"],
+        "content": [{ "html": "<div>The content.</div>" }]
+      }
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: data, as: :json, headers: @headers
+
+    assert_response :created
+
+    get entry_path(Entry.last)
+
+    assert_select ".h-entry", count: 1
+    assert_select ".p-name", text: "The title to be updated"
+
+    # Update entry:
+
+    last_entry = Entry.last
+
+    update_data = {
+      "action": "update",
+      "url": entry_url(last_entry),
+      "replace": {
+        "name": ["The updated title"]
+      }
+    }
+
+    post micropub_url(subdomain: blog.subdomain), params: update_data, as: :json, headers: @headers
+
+    get entry_url(last_entry)
+
+    assert_select ".p-name", text: "The updated title"
+  end
+
+  test "An entry can have it's name deleted" do
+  end
 end

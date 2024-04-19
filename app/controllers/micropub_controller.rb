@@ -377,6 +377,11 @@ class MicropubController < ApplicationController
     end
 
     def json_update_replace_action(resource, properties)
+      # name
+      if properties[:name]
+        resource.name = properties[:name].first
+      end
+
       # content
       if properties[:content]
         resource.content = properties[:content].first
