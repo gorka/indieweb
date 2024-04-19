@@ -24,7 +24,8 @@ class MicropubController < ApplicationController
     }
   }.with_indifferent_access
 
-  PERMITTED_ACTIONS = %w[ delete undelete ]
+  PERMITTED_ACTIONS = %w[ delete undelete update ]
+  PERMITTED_UPDATE_ACTIONS = %w[ add delete replace ]
 
   class InvalidAction < StandardError; end
   class InvalidMicroformat < StandardError; end
@@ -53,11 +54,11 @@ class MicropubController < ApplicationController
       microformat = params[:h]
 
       if valid_action = PERMITTED_ACTIONS.include?(action)
-        send("form_#{action}_action") and return
+        return send("form_#{action}_action")
       end
 
       if !action && microformat
-        form_create_action and return
+        return form_create_action
       end
 
       raise InvalidMicroformat if !microformat
@@ -69,11 +70,11 @@ class MicropubController < ApplicationController
       microformat_sym = params[:type]&.first&.split("-")&.pop&.to_sym
 
       if valid_action = PERMITTED_ACTIONS.include?(action)
-        send("json_#{action}_action") and return
+        return send("json_#{action}_action", resource_from_url(params[:url]))
       end
 
       if !action && microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
-        json_create_action(microformat) and return
+        return json_create_action(microformat)
       end
 
       raise InvalidMicroformat if !microformat
@@ -286,9 +287,7 @@ class MicropubController < ApplicationController
       end
     end
 
-    def json_delete_action
-      resource = resource_from_url(params[:url])
-
+    def json_delete_action(resource)
       if resource.update(deleted_at: Time.now)
         head :no_content
       else
@@ -299,9 +298,7 @@ class MicropubController < ApplicationController
       end
     end
 
-    def json_undelete_action
-      resource = resource_from_url(params[:url])
-
+    def json_undelete_action(resource)
       if resource.update(deleted_at: nil)
         head :no_content
       else
@@ -310,6 +307,78 @@ class MicropubController < ApplicationController
           "error_description": "Something went wrong when undeleting this resource."
         }, status: :bad_request
       end
+    end
+
+    def json_update_action(resource)
+      params[:micropub].each do |update_action, properties|
+        if PERMITTED_UPDATE_ACTIONS.include?(update_action)
+          if ![ActionController::Parameters, Array].include?(properties.class)
+            return render json: {
+              "error": "bad request",
+              "error_description": "Invalid info provided."
+            }, status: :bad_request
+          end
+
+          send("json_update_#{update_action}_action", resource, properties)
+        end
+      end
+
+      if resource.save
+        head :ok
+      else
+        render json: {
+          "error": "unprocessable entity",
+          "error_description": "Something went wrong when updating this resource."
+        }, status: :unprocessable_entity
+      end
+    end
+
+    def json_update_add_action(resource, properties)
+      # category
+      if properties[:category]&.any?
+        categorizations_attributes = properties[:category].map { |category|
+          {
+            category_attributes: {
+              name: category
+            }
+          }
+        }
+
+        resource.categorizations_attributes = categorizations_attributes
+      end
+
+      # todo: photo
+    end
+
+    def json_update_delete_action(resource, properties)
+      # delete the whole property.
+      if properties.is_a?(Array)
+
+        if properties.include?("category")
+          resource.categorizations.delete_all
+        end
+
+        if properties.include?("photo")
+          resource.photos_with_alt.delete_all
+        end
+
+      # remove some values inside the property.
+      else
+        if properties[:category]&.any?
+          categories = Category.where(name: properties[:category])
+          resource.categorizations.where(category: categories).delete_all
+        end
+      end
+    end
+
+    def json_update_replace_action(resource, properties)
+      # content
+      if properties[:content]
+        resource.content = properties[:content].first
+      end
+
+      # todo?: category
+      # todo?: photo
     end
 
     def resource_from_url(url)
