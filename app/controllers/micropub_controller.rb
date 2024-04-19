@@ -95,6 +95,10 @@ class MicropubController < ApplicationController
 
       properties = {}
 
+      if properties_to_return.include?("name") && resource.name
+        properties[:name] = [resource.name]
+      end
+
       if properties_to_return.include?("content")
         properties[:content] = [resource.content]
       end
