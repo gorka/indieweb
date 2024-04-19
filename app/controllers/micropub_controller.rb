@@ -17,8 +17,9 @@ class MicropubController < ApplicationController
     entry: {
       class: Entry,
       supported_properties: [
-        "content",
         "category",
+        "content",
+        "name",
         "photo"
       ]
     }
@@ -222,6 +223,10 @@ class MicropubController < ApplicationController
 
       microformat_object = microformat[:class].new
       microformat_object.blog = @blog
+
+      if properties[:name]&.any?
+        microformat_object.name = properties[:name].first
+      end
 
       if properties[:content].any?
         content = properties[:content].first
