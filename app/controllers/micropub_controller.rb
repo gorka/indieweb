@@ -359,6 +359,10 @@ class MicropubController < ApplicationController
       # delete the whole property.
       if properties.is_a?(Array)
 
+        if properties.include?("name")
+          resource.name = nil
+        end
+
         if properties.include?("category")
           resource.categorizations.delete_all
         end
