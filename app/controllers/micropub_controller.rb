@@ -236,7 +236,7 @@ class MicropubController < ApplicationController
         microformat_object.name = properties[:name].first
       end
 
-      if properties[:content].any?
+      if properties[:content]&.any?
         content = properties[:content].first
 
         kontent = case content
