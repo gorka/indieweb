@@ -69,3 +69,5 @@ gem "omniauth-rails_csrf_protection", "~> 1.0"
 gem "omniauth-oauth2", "~> 1.8"
 
 gem "faraday", "~> 2.9"
+
+gem "aws-sdk-s3", "~> 1.147", require: false
