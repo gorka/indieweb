@@ -1,4 +1,6 @@
 class PublicController < ActionController::Base
+  include Authentication
+
   layout "blog"
 
   before_action :set_blog

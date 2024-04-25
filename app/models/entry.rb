@@ -12,6 +12,10 @@ class Entry < ApplicationRecord
 
   default_scope { where(deleted_at: nil) }
 
+  def draft?
+    status == "draft"
+  end
+
   private
 
     def empty_or_assigned_category(attributes)

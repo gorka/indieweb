@@ -28,7 +28,8 @@ class MicropubRocks6Test < ActionDispatch::IntegrationTest
       type: ["h-entry"],
       properties: {
         content: ["Test of querying the endpoint for the source content"],
-        category: ["micropub", "test"]
+        category: ["micropub", "test"],
+        "post-status": ["published"]
       }
     }
 

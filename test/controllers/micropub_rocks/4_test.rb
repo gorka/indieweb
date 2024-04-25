@@ -65,7 +65,7 @@ class MicropubRocks4Test < ActionDispatch::IntegrationTest
 
     update_data = {
       "action": "update",
-      "url": entry_path(last_entry),
+      "url": entry_url(last_entry),
       "add": {
         "category": ["test2"]
       }
