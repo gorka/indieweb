@@ -20,7 +20,8 @@ class MicropubController < ApplicationController
         "category",
         "content",
         "name",
-        "photo"
+        "photo",
+        "post-status"
       ]
     }
   }.with_indifferent_access
@@ -41,7 +42,14 @@ class MicropubController < ApplicationController
       render json: { "syndicate-to": [] }, status: :ok
     when "source"
       resource = resource_from_url(params[:url])
-      render json: format_resource_for_source(resource, params[:properties]), status: :ok
+      if resource
+        render json: format_resource_for_source(resource, params[:properties]), status: :ok
+      else
+        render json: {
+          error: "not found",
+          error_description: "Resource not found."
+        }, status: :not_found
+      end
     else
       head :bad_request
       return
@@ -120,6 +128,10 @@ class MicropubController < ApplicationController
         }
       end
 
+      if properties_to_return.include?("post-status")
+        properties[:"post-status"] = [resource.status]
+      end
+
       {
         type: ["h-entry"],
         properties: properties
@@ -191,6 +203,8 @@ class MicropubController < ApplicationController
 
         microformat_object.microformat_photos_attributes = microformat_photos_attributes
       end
+
+      microformat_object.status = params[:"post-status"] == "draft" ? "draft" : "published"
 
       if microformat_object.save
         response.headers["Location"] = entry_url(microformat_object)
@@ -290,6 +304,10 @@ class MicropubController < ApplicationController
         end
 
         microformat_object.microformat_photos_attributes = microformat_photos_attributes
+      end
+
+      if properties[:"post-status"]&.any?
+        microformat_object.status = properties[:"post-status"].first
       end
 
       if microformat_object.save
@@ -399,15 +417,33 @@ class MicropubController < ApplicationController
         resource.content = properties[:content].first
       end
 
+      # post-status
+      if properties[:"post-status"]
+        resource.status = properties[:"post-status"].first
+      end
+
       # todo?: category
       # todo?: photo
     end
 
     def resource_from_url(url)
-      path = URI.parse(url)&.path
-      return unless path
+      # todo: extract to somewhere else.
+      domain = Rails.env.test? ? "example.com" : "indieblog.xyz"
 
-      controller_name, resource_id = path.split("/").reject(&:empty?)
+      uri = URI.parse(url)
+
+      if uri&.host&.end_with?(domain)
+        subdomain = uri.host.chomp("." + domain)
+      else
+        return
+      end
+
+      return unless uri.path
+
+      controller_name, resource_id = uri.path.split("/").reject(&:empty?)
+
+      blog = Blog.find_by(subdomain: subdomain)
+      return unless blog
 
       microformat = MICROFORMAT_OBJECT_TYPES[controller_name.singularize.to_sym]
       return unless microformat
@@ -415,7 +451,7 @@ class MicropubController < ApplicationController
       microformat_class = microformat[:class]
       return unless microformat_class
 
-      microformat_class.unscoped.find_by(id: resource_id)
+      microformat_class.unscoped.find_by(blog: blog, id: resource_id)
     end
 
     def set_blog

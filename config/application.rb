@@ -23,5 +23,7 @@ module Indieweb
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    config.session_store :cookie_store, key: '_indieweb_session', domain: :all
   end
 end

@@ -11,3 +11,8 @@ with_categories:
 with_image_with_alt:
   blog: valid
   content: Entry with image with alt
+
+draft:
+  blog: valid
+  content: Only owner can view this entry
+  status: draft
