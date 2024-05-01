@@ -75,6 +75,6 @@ class BlogsController < ApplicationController
     end
 
     def blog_params
-      params.require(:blog).permit(:user_id, :title, :subdomain, :authorization_endpoint, :token_endpoint)
+      params.require(:blog).permit(:user_id, :title, :subdomain, :custom_domain, :authorization_endpoint, :token_endpoint)
     end
 end

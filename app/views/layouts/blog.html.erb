@@ -16,7 +16,7 @@
 
   <body>
     <div class="container">
-      <h1><%= link_to @blog.title, root_url(subdomain: @blog.subdomain) %></h1>
+      <h1><%= link_to @blog.title, root_url %></h1>
       <%= yield %>
     </div>
   </body>

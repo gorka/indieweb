@@ -8,6 +8,10 @@ class PublicController < ActionController::Base
   private
 
     def set_blog
-      @blog = Blog.find_by(subdomain: request.subdomain)
+      # todo: extract into Current.blog
+
+      blog_with_custom_domain = Blog.find_by(custom_domain: request.host)
+
+      @blog = blog_with_custom_domain ? blog_with_custom_domain : Blog.find_by(subdomain: request.subdomain)
     end
 end
