@@ -19,10 +19,6 @@ class MediaController < ApplicationController
 
     file = params[:file]
 
-    puts "-" * 100
-    p file.content_type
-    puts "-" * 100
-
     unless ALLOWED_CONTENT_TYPES.include?(file.content_type)
       render json: {
         "error": "unprocessable entity",
