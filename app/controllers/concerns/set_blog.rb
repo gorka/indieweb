@@ -28,12 +28,12 @@ module SetBlog
 
     def get_blog_from_request(request)
       blog_with_custom_domain = Blog.find_by(custom_domain: request.host)
-      blog_with_custom_domain ? blog_with_custom_domain : Blog.find_by(subdomain: request.subdomain)
+      blog_with_custom_domain.present? ? blog_with_custom_domain : Blog.find_by(subdomain: request.subdomain)
     end
 
     def get_blog_from_host(host)
-      subdomain = extract_subdomain(host)
-      Blog.find_by(subdomain: request.subdomain)
+      blog_with_custom_domain = Blog.find_by(custom_domain: request.host)
+      blog_with_custom_domain.present? ? blog_with_custom_domain : Blog.find_by(subdomain: subdomain = extract_subdomain(host))
     end
 
     def set_blog

@@ -10,7 +10,7 @@
 
     <%= tag(:link, rel: "authorization_endpoint", href: Current.blog.authorization_endpoint) %>
     <%= tag(:link, rel: "token_endpoint", href: Current.blog.token_endpoint) %>
-    <%= tag(:link, rel: "micropub", href: micropub_url(subdomain: Current.blog.subdomain)) %>
+    <%= tag(:link, rel: "micropub", href: blog_url("micropub_url", Current.blog)) %>
     <%= tag(:link, rel: "me", href:"mailto:#{Current.blog.user.email}") %>
   </head>
 

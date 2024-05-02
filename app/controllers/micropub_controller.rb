@@ -55,7 +55,6 @@ class MicropubController < ApplicationController
       head :bad_request
       return
     end
-
   end
 
   def create
