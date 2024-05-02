@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= @blog.title %></title>
+    <title><%= Current.blog.title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "public", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
-    <%= tag(:link, rel: "authorization_endpoint", href: @blog.authorization_endpoint) %>
-    <%= tag(:link, rel: "token_endpoint", href: @blog.token_endpoint) %>
-    <%= tag(:link, rel: "micropub", href: micropub_url(subdomain: @blog.subdomain)) %>
-    <%= tag(:link, rel: "me", href:"mailto:#{@blog.user.email}") %>
+    <%= tag(:link, rel: "authorization_endpoint", href: Current.blog.authorization_endpoint) %>
+    <%= tag(:link, rel: "token_endpoint", href: Current.blog.token_endpoint) %>
+    <%= tag(:link, rel: "micropub", href: micropub_url(subdomain: Current.blog.subdomain)) %>
+    <%= tag(:link, rel: "me", href:"mailto:#{Current.blog.user.email}") %>
   </head>
 
   <body>
     <div class="container">
-      <h1><%= link_to @blog.title, root_url %></h1>
+      <h1><%= link_to Current.blog.title, root_url %></h1>
       <%= yield %>
     </div>
   </body>

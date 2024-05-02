@@ -2,10 +2,11 @@ require "open-uri"
 
 class MicropubController < ApplicationController
   include IndieAuth
+  include SetBlog
 
   skip_forgery_protection
 
-  before_action :set_blog, only: %i[ create ]
+  before_action :ensure_blog
 
   CONTENT_TYPES = {
     FORM_ENCODED: /application\/x-www-form-urlencoded/,
@@ -108,7 +109,11 @@ class MicropubController < ApplicationController
       end
 
       if properties_to_return.include?("content")
-        properties[:content] = [resource.content]
+        if resource.name.present?
+          properties[:content] = [{ html: resource.content }]
+        else
+          properties[:content] = [resource.content]
+        end
       end
 
       if properties_to_return.include?("category") && resource.categories.any?
@@ -144,7 +149,7 @@ class MicropubController < ApplicationController
       raise InvalidMicroformat if !microformat
 
       microformat_object = microformat[:class].new
-      microformat_object.blog = @blog
+      microformat_object.blog = Current.blog
 
       if params[:name]
         microformat_object.name = params[:name]
@@ -244,7 +249,7 @@ class MicropubController < ApplicationController
       properties = params[:properties]
 
       microformat_object = microformat[:class].new
-      microformat_object.blog = @blog
+      microformat_object.blog = Current.blog
 
       if properties[:name]&.any?
         microformat_object.name = properties[:name].first
@@ -427,22 +432,13 @@ class MicropubController < ApplicationController
     end
 
     def resource_from_url(url)
-      # todo: extract to somewhere else.
-      domain = Rails.env.test? ? "example.com" : "indieblog.xyz"
-
       uri = URI.parse(url)
 
-      if uri&.host&.end_with?(domain)
-        subdomain = uri.host.chomp("." + domain)
-      else
-        return
-      end
-
-      return unless uri.path
+      return unless uri.path && uri.host
 
       controller_name, resource_id = uri.path.split("/").reject(&:empty?)
 
-      blog = Blog.find_by(subdomain: subdomain)
+      blog = get_blog_from_host(uri.host)
       return unless blog
 
       microformat = MICROFORMAT_OBJECT_TYPES[controller_name.singularize.to_sym]
@@ -454,10 +450,8 @@ class MicropubController < ApplicationController
       microformat_class.unscoped.find_by(blog: blog, id: resource_id)
     end
 
-    def set_blog
-      @blog = Blog.find_by(subdomain: request.subdomain)
-
-      if !@blog
+    def ensure_blog
+      if !Current.blog
         render json: {
           error: "invalid_request",
           error_description: "Invalid blog subdomain"
