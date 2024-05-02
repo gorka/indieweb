@@ -62,6 +62,7 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "mocha", "~> 2.2"
+  gem "webmock", "~> 3.23"
 end
 
 gem "omniauth", "~> 2.1"
