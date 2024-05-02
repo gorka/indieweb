@@ -71,6 +71,11 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
   end
 
   test "203: Create an h-entry with a photo referenced by URL (JSON)" do
+    uploaded_file = fixture_file_upload("sunset.jpg", "image/jpeg")
+    
+    stub_request(:get, "https://micropub.rocks/media/sunset.jpg").
+      to_return(status: 200, body: uploaded_file.tempfile.read)
+
     data = {
       "type": ["h-entry"],
       "properties": {
@@ -91,6 +96,11 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
   end
 
   test "205: Create an h-entry post with a photo with alt text (JSON)" do
+    uploaded_file = fixture_file_upload("sunset.jpg", "image/jpeg")
+    
+    stub_request(:get, "https://micropub.rocks/media/sunset.jpg").
+      to_return(status: 200, body: uploaded_file.tempfile.read)
+
     data = {
       "type": ["h-entry"],
       "properties": {

@@ -39,6 +39,11 @@ class MicropubRocks1Test < ActionDispatch::IntegrationTest
   end
 
   test "104: Create an h-entry with a photo referenced by URL (form-encoded)" do
+    uploaded_file = fixture_file_upload("sunset.jpg", "image/jpeg")
+    
+    stub_request(:get, "https://micropub.rocks/media/sunset.jpg").
+      to_return(status: 200, body: uploaded_file.tempfile.read)
+
     data = {
       h: "entry",
       content: "Micropub test of creating a photo referenced by URL",
