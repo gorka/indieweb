@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_30_223232) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_02_225739) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -81,6 +81,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_30_223232) do
     t.datetime "deleted_at"
     t.string "name"
     t.string "status", default: "published"
+    t.text "html_content"
     t.index ["blog_id"], name: "index_entries_on_blog_id"
   end
 
