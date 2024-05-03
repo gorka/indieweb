@@ -72,3 +72,5 @@ gem "omniauth-oauth2", "~> 1.8"
 gem "faraday", "~> 2.9"
 
 gem "aws-sdk-s3", "~> 1.147", require: false
+
+gem "honeybadger", "~> 5.8"
