@@ -129,6 +129,7 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.1.0)
     hashie (5.0.0)
+    honeybadger (5.8.0)
     i18n (1.14.4)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.2)
@@ -326,6 +327,7 @@ DEPENDENCIES
   capybara
   debug
   faraday (~> 2.9)
+  honeybadger (~> 5.8)
   image_processing (~> 1.2)
   importmap-rails
   mocha (~> 2.2)
