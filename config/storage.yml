@@ -13,6 +13,8 @@ amazon:
   secret_access_key: <%= Rails.application.credentials.dig(:aws, :s3, :secret_access_key) %>
   region: us-east-2
   bucket: indieblog-<%= Rails.env %>
+  upload:
+    cache_control: "private, max-age=<%= 1.year.to_i %>"
 
 # Remember not to checkin your GCS keyfile to a repository
 # google:
