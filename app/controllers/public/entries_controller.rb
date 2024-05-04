@@ -16,6 +16,6 @@ class Public::EntriesController < PublicController
     end
 
     def set_entry
-      @entry = Entry.find(params[:id])
+      @entry = Current.blog.entries.find(params[:id])
     end
 end
