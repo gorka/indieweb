@@ -4,17 +4,19 @@
   <% end %>
 
   <div class="e-content">
-    <div class="swiper" data-controller="photo">
-      <div class="swiper-wrapper">
-        <% entry.photos_with_alt.each do |photo_with_alt| %>
-          <div class="swiper-slide">
-            <%= image_tag photo_with_alt.photo, alt: photo_with_alt.alt, class: "u-photo" if photo_with_alt.photo.attached? %>
-          </div>
-        <% end %>
+    <% if entry.photos_with_alt.any? %>
+      <div class="swiper" data-controller="photo">
+        <div class="swiper-wrapper">
+          <% entry.photos_with_alt.each do |photo_with_alt| %>
+            <div class="swiper-slide">
+              <%= image_tag photo_with_alt.photo, alt: photo_with_alt.alt, class: "u-photo" if photo_with_alt.photo.attached? %>
+            </div>
+          <% end %>
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
       </div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-    </div>
+    <% end %>
 
     <div>
       <%= format_content(entry) %>
