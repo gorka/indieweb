@@ -19,5 +19,6 @@ article img {
 }
 
 .container {
+  margin-bottom: 3rem;
   max-width: 960px;
 }
