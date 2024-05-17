@@ -14,19 +14,6 @@ class MicropubController < ApplicationController
     MULTIPART: /multipart\/form-data/
   }
 
-  MICROFORMAT_OBJECT_TYPES = {
-    entry: {
-      class: Entry,
-      supported_properties: [
-        "category",
-        "content",
-        "name",
-        "photo",
-        "post-status"
-      ]
-    }
-  }.with_indifferent_access
-
   PERMITTED_ACTIONS = %w[ delete undelete update ]
   PERMITTED_UPDATE_ACTIONS = %w[ add delete replace ]
 
@@ -42,7 +29,7 @@ class MicropubController < ApplicationController
     when "syndicate-to"
       render json: { "syndicate-to": [] }, status: :ok
     when "source"
-      resource = resource_from_url(params[:url])
+      resource = Micropub.resource_from_url(params[:url])
       if resource
         render json: format_resource_for_source(resource, params[:properties]), status: :ok
       else
@@ -79,10 +66,10 @@ class MicropubController < ApplicationController
       microformat_sym = params[:type]&.first&.split("-")&.pop&.to_sym
 
       if valid_action = PERMITTED_ACTIONS.include?(action)
-        return send("json_#{action}_action", resource_from_url(params[:url]))
+        return send("json_#{action}_action", Micropub.resource_from_url(params[:url]))
       end
 
-      if !action && microformat = MICROFORMAT_OBJECT_TYPES[microformat_sym]
+      if !action && microformat = Micropub::MICROFORMAT_OBJECT_TYPES[microformat_sym]
         return json_create_action(microformat)
       end
 
@@ -94,7 +81,7 @@ class MicropubController < ApplicationController
   private
 
     def format_resource_for_source(resource, properties = [])
-      microformat = MICROFORMAT_OBJECT_TYPES[resource.class.name.downcase]
+      microformat = Micropub::MICROFORMAT_OBJECT_TYPES[resource.class.name.downcase]
 
       # todo: error if microformat doesn't exist. maybe one level up.
 
@@ -145,7 +132,7 @@ class MicropubController < ApplicationController
     end
 
     def form_create_action
-      microformat = MICROFORMAT_OBJECT_TYPES[params[:h].to_sym]
+      microformat = Micropub::MICROFORMAT_OBJECT_TYPES[params[:h].to_sym]
 
       raise InvalidMicroformat if !microformat
 
@@ -221,7 +208,7 @@ class MicropubController < ApplicationController
     end
 
     def form_delete_action
-      resource = resource_from_url(params[:url])
+      resource = Micropub.resource_from_url(params[:url])
 
       if resource.update(deleted_at: Time.now)
         head :no_content
@@ -234,7 +221,7 @@ class MicropubController < ApplicationController
     end
 
     def form_undelete_action
-      resource = resource_from_url(params[:url])
+      resource = Micropub.resource_from_url(params[:url])
 
       if resource.update(deleted_at: nil)
         head :no_content
@@ -440,25 +427,6 @@ class MicropubController < ApplicationController
 
       # todo?: category
       # todo?: photo
-    end
-
-    def resource_from_url(url)
-      uri = URI.parse(url)
-
-      return unless uri.path && uri.host
-
-      controller_name, resource_id = uri.path.split("/").reject(&:empty?)
-
-      blog = get_blog_from_host(uri.host)
-      return unless blog
-
-      microformat = MICROFORMAT_OBJECT_TYPES[controller_name.singularize.to_sym]
-      return unless microformat
-
-      microformat_class = microformat[:class]
-      return unless microformat_class
-
-      microformat_class.unscoped.find_by(blog: blog, id: resource_id)
     end
 
     def ensure_blog
