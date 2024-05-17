@@ -65,6 +65,32 @@ class MicropubJsonEntryTest < ActionDispatch::IntegrationTest
     assert_select ".p-name", text: "The updated title"
   end
 
+  test "An entry can have a photo added" do
+    uploaded_file = fixture_file_upload("sunset.jpg", "image/jpeg")
+    
+    stub_request(:get, "https://micropub.rocks/media/sunset.jpg").
+      to_return(status: 200, body: uploaded_file.tempfile.read)
+
+    entry = entries(:note)
+
+    update_data = {
+      "action": "update",
+      "url": entry_url(entry, subdomain: entry.blog.subdomain),
+      "add": {
+        "photo": ["https://micropub.rocks/media/sunset.jpg"]
+      }
+    }
+
+    assert_difference "MicroformatPhoto.count", 1 do
+      assert_difference "PhotoWithAlt.count", 1 do
+        post micropub_url(subdomain: entry.blog.subdomain), params: update_data, as: :json, headers: @headers
+      end
+    end
+
+    assert_equal entry.microformat_photos.count, 1
+    assert_equal entry.photos_with_alt.count, 1
+  end
+
   test "An entry can have it's name removed" do
     blog = blogs(:valid)
     data = {
