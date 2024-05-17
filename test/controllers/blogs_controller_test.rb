@@ -37,7 +37,7 @@ class BlogsControllerTest < ActionDispatch::IntegrationTest
     get blogs_url
 
     assert_response :success
-    assert_select "#blogs > p a", count: 2
+    assert_select "#blogs > p a", count: 3
   end
 
   test "user can see new blog form" do
