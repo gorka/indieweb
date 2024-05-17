@@ -4,3 +4,9 @@ entry_with_image_with_alt_sunset:
   photo_with_alt: sunset
   photoable: with_image_with_alt
   photoable_type: Entry
+
+entry_with_image_with_alt_power_rangers:
+  photo_with_alt: power_rangers
+  photoable: with_image_with_alt
+  photoable_type: Entry
+

@@ -1,5 +1,5 @@
 class MicroformatPhoto < ApplicationRecord
-  belongs_to :photo_with_alt
+  belongs_to :photo_with_alt, dependent: :destroy
   belongs_to :photoable, polymorphic: true
 
   def photo_with_alt_attributes=(attributes)
