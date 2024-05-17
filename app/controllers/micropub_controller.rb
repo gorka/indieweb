@@ -369,7 +369,34 @@ class MicropubController < ApplicationController
         resource.categorizations_attributes = categorizations_attributes
       end
 
-      # todo: photo
+      if properties[:photo]&.any?
+        microformat_photos_attributes = properties[:photo].reduce([]) do |acc, curr|
+          begin
+            photo_uri, alt = case curr
+            when String
+              [URI.parse(curr), ""]
+            when ActionController::Parameters
+              [URI.parse(curr["value"]), curr[:alt]]
+            end
+          rescue => error
+            puts "-" * 100
+            p error
+            puts "-" * 100
+          end
+
+          acc << {
+            photo_with_alt_attributes: {
+              alt: alt,
+              photo_data: photo_uri.open,
+              photo_name: File.basename(photo_uri.path)
+            }
+          }
+
+          acc
+        end
+
+        resource.microformat_photos_attributes = microformat_photos_attributes
+      end
     end
 
     def json_update_delete_action(resource, properties)
