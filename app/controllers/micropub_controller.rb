@@ -390,7 +390,7 @@ class MicropubController < ApplicationController
         end
 
         if properties.include?("photo")
-          resource.photos_with_alt.delete_all
+          resource.microformat_photos.destroy_all
         end
 
       # remove some values inside the property.
@@ -398,6 +398,16 @@ class MicropubController < ApplicationController
         if properties[:category]&.any?
           categories = Category.where(name: properties[:category])
           resource.categorizations.where(category: categories).delete_all
+        end
+
+        if properties[:photo]&.any?
+          signed_ids = properties[:photo].map { |url| url.match(/redirect\/([^\/]+)\//)[1] }
+          blobs = signed_ids.map { |signed_id| ActiveStorage::Blob.find_signed(signed_id) }
+
+          blobs.each do |blob|
+            record = blob.attachments.first.record
+            MicroformatPhoto.find_by(photoable: resource, photo_with_alt: record).destroy
+          end
         end
       end
     end

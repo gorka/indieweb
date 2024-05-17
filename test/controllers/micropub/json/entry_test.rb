@@ -100,4 +100,38 @@ class MicropubJsonEntryTest < ActionDispatch::IntegrationTest
 
     assert_select ".p-name", false
   end
+
+  test "An entry can have a photo removed" do
+    entry = entries(:with_image_with_alt)
+
+    update_data = {
+      "action": "update",
+      "url": entry_url(entry, subdomain: entry.blog.subdomain),
+      "delete": {
+        "photo": [url_for(entry.photos_with_alt.first.photo)]
+      }
+    }
+
+    assert_difference "MicroformatPhoto.count", -1 do
+      assert_difference "PhotoWithAlt.count", -1 do
+        post micropub_url(subdomain: entry.blog.subdomain), params: update_data, as: :json, headers: @headers
+      end
+    end
+  end
+
+  test "An entry can have all it's photos removed" do
+    entry = entries(:with_image_with_alt)
+
+    update_data = {
+      "action": "update",
+      "url": entry_url(entry, subdomain: entry.blog.subdomain),
+      "delete": ["photo"]
+    }
+
+    assert_difference "MicroformatPhoto.count", -2 do
+      assert_difference "PhotoWithAlt.count", -2 do
+        post micropub_url(subdomain: entry.blog.subdomain), params: update_data, as: :json, headers: @headers
+      end
+    end
+  end
 end
