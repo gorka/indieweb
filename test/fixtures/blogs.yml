@@ -7,6 +7,14 @@ valid:
   authorization_endpoint: https://indieauth.com/auth
   token_endpoint: https://tokens.indieauth.com/token
 
+custom_domain:
+  user: valid
+  title: Blog with custom domain
+  subdomain: custom_domain
+  custom_domain: www.custom-domain.com
+  authorization_endpoint: https://indieauth.com/auth
+  token_endpoint: https://tokens.indieauth.com/token
+
 another_from_nicolas:
   user: valid
   title: Another Blog

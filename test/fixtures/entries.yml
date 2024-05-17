@@ -1,5 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+note:
+  blog: valid
+  content: This is a note
+
+custom_domain:
+  blog: custom_domain
+  content: This note is from a blog with custom domain
+
 without_categories:
   blog: valid
   content: Entry without categories
