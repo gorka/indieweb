@@ -1,42 +1,60 @@
+<% if blog.errors.any? %>
+  <div style="color: red">
+    <h2><%= pluralize(blog.errors.count, "error") %> prohibited this blog from being saved:</h2>
+
+    <ul>
+      <% blog.errors.each do |error| %>
+        <li><%= error.full_message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
 <%= form_with(model: blog) do |form| %>
-  <% if blog.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(blog.errors.count, "error") %> prohibited this blog from being saved:</h2>
-
-      <ul>
-        <% blog.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div>
+  <div class="input-group">
     <%= form.label :title, style: "display: block" %>
     <%= form.text_field :title %>
   </div>
 
-  <div>
+  <div class="input-group">
     <%= form.label :subdomain, style: "display: block" %>
     <%= form.text_field :subdomain %>
   </div>
 
-  <div>
+  <div class="input-group">
     <%= form.label :custom_domain, style: "display: block" %>
     <%= form.text_field :custom_domain %>
   </div>
 
-  <div>
+  <div class="input-group">
     <%= form.label :authorization_endpoint, style: "display: block" %>
     <%= form.text_field :authorization_endpoint %>
   </div>
 
-  <div>
+  <div class="input-group">
     <%= form.label :token_endpoint, style: "display: block" %>
     <%= form.text_field :token_endpoint %>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <%= form.submit %>
+<% end %>
+
+<h2>Blog password</h2>
+
+<%= form_with(model: blog) do |form| %>
+  <div class="input-group">
+    <%= form.label :password, style: "display: block" %>
+    <%= form.text_field :password %>
   </div>
+
+  <div class="input-group">
+    <%= form.label :password_confirmation, style: "display: block" %>
+    <%= form.text_field :password_confirmation %>
+  </div>
+
+  <%= form.submit blog.password_digest.present? ? "Update password" : "Create password" %>
+<% end %>
+
+<% if blog.password_digest.present? %>
+  <%= button_to "Delete password", blog_path(blog), method: :patch, params: { delete_password: true, blog: { password: "" } } %>
 <% end %>

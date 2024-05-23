@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_02_225739) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_22_232428) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -51,6 +51,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_02_225739) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "custom_domain"
+    t.string "password_digest"
     t.index ["subdomain"], name: "index_blogs_on_subdomain", unique: true
     t.index ["user_id"], name: "index_blogs_on_user_id"
   end
