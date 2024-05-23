@@ -10,4 +10,8 @@ class Blog < ApplicationRecord
   def to_param
     subdomain
   end
+
+  def password_protected?
+    password_digest.present?
+  end
 end
