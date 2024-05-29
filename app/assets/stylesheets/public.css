@@ -22,3 +22,23 @@ article img {
   margin-bottom: 3rem;
   max-width: 960px;
 }
+
+.footer {
+  margin-top: 5rem;
+}
+
+.input-group {
+  margin: 1rem 0;
+}
+
+.alert {
+  padding: .5rem;
+  color: red;
+  border: 1px solid red;
+}
+
+.notice {
+  padding: .5rem;
+  color: green;
+  border: 1px solid green;
+}

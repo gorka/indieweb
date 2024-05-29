@@ -40,6 +40,10 @@ class BlogsController < ApplicationController
       return
     end
 
+    if params[:delete_password].present?
+      @blog.password_digest = nil
+    end
+
     if @blog.update(blog_params)
       redirect_to @blog, notice: "Blog was successfully updated.", status: :see_other
     else
@@ -75,6 +79,13 @@ class BlogsController < ApplicationController
     end
 
     def blog_params
-      params.require(:blog).permit(:user_id, :title, :subdomain, :custom_domain, :authorization_endpoint, :token_endpoint)
+      params.require(:blog).permit(:user_id,
+                                   :title,
+                                   :subdomain,
+                                   :custom_domain,
+                                   :authorization_endpoint,
+                                   :token_endpoint,
+                                   :password,
+                                   :password_confirmation)
     end
 end

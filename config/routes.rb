@@ -17,6 +17,10 @@ Rails.application.routes.draw do
 
   constraints(CustomDomainOrSubdomain) do
     get "/", to: "public/blogs#show"
+    get "/blog/sign-in", to: "public/blogs/sessions#new", as: :blog_sign_in
+    post "/blog/sign-in", to: "public/blogs/sessions#create", as: :blog_sign_in_create
+    delete "/blog/sign-out", to: "public/blogs/sessions#destroy", as: :blog_sign_out
+
     resources :entries, only: %i[ show ], module: "public"
     resource :media, only: %i[ create ]
     resource :micropub, only: %i[ show create ], controller: "micropub", as: "micropub"

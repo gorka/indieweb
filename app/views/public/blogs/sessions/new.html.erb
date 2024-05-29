@@ -1,0 +1,10 @@
+<p>El blog al que intentas acceder está protegido por contraseña.</p>
+
+<%= form_with(action: blog_sign_in_create_path, method: :post) do |form| %>
+  <div class="input-group">
+    <%= form.label :password, "Contraseña:", style: "display: block" %>
+    <%= form.password_field :password %>
+  </div>
+
+  <%= form.submit "Entrar" %>
+<% end %>

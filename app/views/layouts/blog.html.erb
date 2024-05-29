@@ -17,7 +17,22 @@
   <body>
     <div class="container">
       <h1><%= link_to Current.blog.title, root_url %></h1>
+
+      <% if notice %>
+        <div class="notice"><%= notice %></div>
+      <% end %>
+
+      <% if alert %>
+        <div class="alert"><%= alert %></div>
+      <% end %>
+
       <%= yield %>
+
+      <% if Current.blog.password_protected? && session[:authorized_guest] %>
+        <footer class="footer">
+          <%= button_to "Desconectar", blog_sign_out_path, method: :delete %>
+        </footer>
+      <% end %>
     </div>
   </body>
 </html>
