@@ -3,6 +3,16 @@
   padding: 1rem;
   border: 1px solid #DDD;
 
+  figure {
+    margin: auto;
+    border: 1px solid red;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
   pre {
     padding: .5rem;
     background-color: #EEE;
